@@ -41,3 +41,23 @@ Erlaubte `severity`-Werte sind `info`, `delay`, `disruption` und `cancellation`.
 Ohne URL zeigt die App Beispieldaten. Für echte Daten empfiehlt sich ein kleiner Home-Assistant- oder Server-Proxy, der die ÜSTRA/GVH-Meldungen in dieses Format bringt.
 
 Zum schnellen Testen liegt `sample-alerts.json` im Projektordner.
+
+## Echtzeitdaten
+
+Für echte Meldungen gibt es jetzt den Ordner `realtime-proxy`. Der Proxy liest GTFS-Realtime Service Alerts von gtfs.de und liefert sie als App-JSON.
+
+```bash
+cd realtime-proxy
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+python uestra_realtime_proxy.py
+```
+
+Danach in der App als Datenquelle eintragen:
+
+```text
+http://127.0.0.1:8765/alerts
+```
+
+Im iPhone-Simulator zeigt `127.0.0.1` auf den Mac. Auf einem echten iPhone brauchst du die lokale IP-Adresse des Macs.

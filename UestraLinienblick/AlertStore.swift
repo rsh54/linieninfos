@@ -16,8 +16,7 @@ final class AlertStore: ObservableObject {
             lastRefresh = Date()
         }
 
-        guard let url = URL(string: endpoint.trimmingCharacters(in: .whitespacesAndNewlines)),
-              !endpoint.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+        guard let url = makeURL(endpoint: endpoint, selectedLines: selectedLines) else {
             alerts = filter(TransitAlert.samples, selectedLines: selectedLines)
             errorMessage = "Beispieldaten: Trage in den Einstellungen eine API-URL ein."
             return
@@ -42,6 +41,22 @@ final class AlertStore: ObservableObject {
         return alerts
             .filter { normalized.isEmpty || normalized.contains($0.line.lowercased()) }
             .sorted { $0.updatedAt > $1.updatedAt }
+    }
+
+    private func makeURL(endpoint: String, selectedLines: Set<String>) -> URL? {
+        let trimmed = endpoint.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty, var components = URLComponents(string: trimmed) else {
+            return nil
+        }
+
+        if selectedLines.isEmpty == false,
+           components.queryItems?.contains(where: { $0.name == "lines" }) != true {
+            var queryItems = components.queryItems ?? []
+            queryItems.append(URLQueryItem(name: "lines", value: selectedLines.sorted().joined(separator: ",")))
+            components.queryItems = queryItems
+        }
+
+        return components.url
     }
 
     private func decodeAlerts(from data: Data) throws -> [TransitAlert] {

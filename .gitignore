@@ -1,6 +1,8 @@
 .DS_Store
 DerivedData/
 build/
+realtime-proxy/.cache/
+realtime-proxy/.venv/
 *.xcuserstate
 *.xcworkspace/xcuserdata/
 *.xcodeproj/xcuserdata/

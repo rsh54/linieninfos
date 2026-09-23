@@ -31,7 +31,7 @@ Ein kostenloser Apple-Developer-Account reicht meist zum lokalen Testen. Für Ap
 
 ## Was aktuell noch fehlt
 
-Die App kann schon eine JSON-URL laden, aber wir haben noch keine fertige echte ÜSTRA-Datenquelle eingetragen. Deshalb zeigt sie zunächst Beispieldaten.
+Die App kann eine JSON-URL laden. Für echte Meldungen liegt jetzt ein kleiner Proxy im Ordner `realtime-proxy`.
 
 Die App erwartet Daten in diesem Format:
 
@@ -49,13 +49,22 @@ Die App erwartet Daten in diesem Format:
 ]
 ```
 
-## Sinnvoller nächster Schritt
+## Echtzeitdaten starten
 
-Ich würde als nächstes einen kleinen Home-Assistant- oder lokalen Proxy bauen, der:
+Im Terminal:
 
-1. ÜSTRA/GVH-Meldungen abruft,
-2. sie auf deine Linien filtert,
-3. sie als JSON bereitstellt,
-4. und dessen URL du in der App einträgst.
+```bash
+cd realtime-proxy
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+python uestra_realtime_proxy.py
+```
 
-Dann wird aus dem Prototyp eine praktisch nutzbare App.
+Dann in der App unter Einstellungen als Datenquelle eintragen:
+
+```text
+http://127.0.0.1:8765/alerts
+```
+
+Wenn die App auf einem echten iPhone läuft, nimm statt `127.0.0.1` die IP-Adresse des Macs im WLAN.
