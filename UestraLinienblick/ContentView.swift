@@ -89,14 +89,18 @@ struct ContentView: View {
                     .textInputAutocapitalization(.never)
                     .keyboardType(.numbersAndPunctuation)
                     .textFieldStyle(.roundedBorder)
+                    .submitLabel(.done)
+                    .onSubmit {
+                        addLine()
+                    }
 
                 Button {
                     addLine()
                 } label: {
-                    Image(systemName: "plus.circle.fill")
-                        .imageScale(.large)
+                    Label("Hinzufügen", systemImage: "plus.circle.fill")
                 }
-                .disabled(newLine.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+                .buttonStyle(.borderedProminent)
+                .disabled(normalizedNewLine.isEmpty)
             }
         }
     }
@@ -181,10 +185,17 @@ struct ContentView: View {
     }
 
     private func addLine() {
-        let line = newLine.trimmingCharacters(in: .whitespacesAndNewlines)
+        let line = normalizedNewLine
         guard !line.isEmpty else { return }
         selectedLinesStorage = (selectedLines.union([line]).sorted()).joined(separator: ",")
         newLine = ""
+    }
+
+    private var normalizedNewLine: String {
+        newLine
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+            .uppercased()
+            .replacingOccurrences(of: " ", with: "")
     }
 
     private func removeLine(_ line: String) {
