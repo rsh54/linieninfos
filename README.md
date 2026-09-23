@@ -42,15 +42,14 @@ Ohne URL zeigt die App Beispieldaten. Für echte Daten empfiehlt sich ein kleine
 
 Zum schnellen Testen liegt `sample-alerts.json` im Projektordner.
 
-## Echtzeitdaten
+## ÜSTRA-Daten
 
-Für echte Meldungen gibt es jetzt den Ordner `realtime-proxy`. Der Proxy liest GTFS-Realtime Service Alerts von gtfs.de und liefert sie als App-JSON.
+Für echte Meldungen gibt es den Ordner `realtime-proxy`. Der Proxy liest aktuelle ÜSTRA-Verkehrsmeldungen von uestra.de und liefert sie als App-JSON.
 
 ```bash
 cd realtime-proxy
 python3 -m venv .venv
 source .venv/bin/activate
-pip install -r requirements.txt
 python uestra_realtime_proxy.py
 ```
 

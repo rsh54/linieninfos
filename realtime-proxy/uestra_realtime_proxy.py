@@ -9,25 +9,26 @@ from __future__ import annotations
 
 import csv
 import hashlib
+import html
 import json
 import os
 import re
-import time
 import urllib.error
 import urllib.parse
 import urllib.request
 import zipfile
 from dataclasses import dataclass
 from datetime import datetime, timezone
+from html.parser import HTMLParser
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from typing import Iterable
 
-from google.transit import gtfs_realtime_pb2
-
 
 REALTIME_URL = os.environ.get("UESTRA_GTFS_RT_URL", "https://realtime.gtfs.de/realtime-free.pb")
 STATIC_GTFS_URL = os.environ.get("UESTRA_STATIC_GTFS_URL", "https://download.gtfs.de/germany/nv_free/latest.zip")
+UESTRA_NEWS_URL = os.environ.get("UESTRA_NEWS_URL", "https://www.uestra.de/aktuelles/neuigkeiten/aktuelle-meldungen/")
+SOURCE = os.environ.get("UESTRA_SOURCE", "uestra").strip().lower()
 AGENCY_MATCH = [
     item.strip().lower()
     for item in os.environ.get("UESTRA_AGENCY_MATCH", "üstra,uestra,gvh,großraum-verkehr,hannover").split(",")
@@ -55,11 +56,21 @@ class RouteInfo:
     agency_name: str
 
 
+@dataclass(frozen=True)
+class NewsItem:
+    title: str
+    detail: str
+    url: str
+
+
 def main() -> None:
     CACHE_DIR.mkdir(parents=True, exist_ok=True)
     server = ThreadingHTTPServer(("0.0.0.0", DEFAULT_PORT), Handler)
     print(f"ÜSTRA realtime proxy listening on http://127.0.0.1:{DEFAULT_PORT}/alerts")
-    print("First request may download the static GTFS route table once.")
+    if SOURCE == "gtfs":
+        print("GTFS mode: first request may download the static GTFS route table once.")
+    else:
+        print("ÜSTRA mode: reading current reports directly from uestra.de.")
     server.serve_forever()
 
 
@@ -100,6 +111,138 @@ class Handler(BaseHTTPRequestHandler):
 
 
 def get_alerts(lines: set[str]) -> list[dict[str, object]]:
+    if SOURCE == "gtfs":
+        return get_gtfs_alerts(lines)
+    return get_uestra_alerts(lines)
+
+
+def get_uestra_alerts(lines: set[str]) -> list[dict[str, object]]:
+    now = iso_now()
+    results: dict[str, dict[str, object]] = {}
+
+    for item in fetch_uestra_news():
+        affected_lines = lines_from_text(item.title, item.detail)
+        if not affected_lines:
+            continue
+
+        for line in affected_lines:
+            if lines and line not in lines:
+                continue
+
+            key = f"uestra-{digest(item.title + item.detail)}-{line}"
+            results[key] = {
+                "id": key,
+                "line": line,
+                "title": item.title,
+                "detail": item.detail,
+                "severity": severity_from_text(item.title, item.detail),
+                "updatedAt": now,
+                "url": item.url,
+            }
+
+    return sorted(results.values(), key=lambda item: str(item["updatedAt"]), reverse=True)
+
+
+def fetch_uestra_news(page_count: int = 3) -> list[NewsItem]:
+    items: list[NewsItem] = []
+    for page in range(1, page_count + 1):
+        url = UESTRA_NEWS_URL if page == 1 else urllib.parse.urljoin(UESTRA_NEWS_URL, f"seite-{page}/")
+        request = urllib.request.Request(url, headers={"User-Agent": "UestraLinienblick/1.0"})
+        with urllib.request.urlopen(request, timeout=20) as response:
+            html_text = response.read().decode("utf-8", errors="replace")
+        items.extend(parse_uestra_news(html_text, url))
+
+    deduped: dict[str, NewsItem] = {}
+    for item in items:
+        deduped[digest(item.title + item.detail)] = item
+    return list(deduped.values())
+
+
+def parse_uestra_news(html_text: str, page_url: str) -> list[NewsItem]:
+    parser = UestraNewsParser(page_url)
+    parser.feed(html_text)
+    parser.close()
+    return parser.items
+
+
+class UestraNewsParser(HTMLParser):
+    def __init__(self, page_url: str) -> None:
+        super().__init__(convert_charrefs=True)
+        self.page_url = page_url
+        self.items: list[NewsItem] = []
+        self.current_tag: str | None = None
+        self.current_parts: list[str] = []
+        self.pending_title: str | None = None
+        self.pending_detail: str | None = None
+        self.pending_url: str | None = None
+        self.last_category_was_traffic = False
+        self.current_link: str | None = None
+
+    def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
+        if tag in {"h3", "p", "a", "li"}:
+            self.current_tag = tag
+            self.current_parts = []
+
+        if tag == "a":
+            attrs_dict = dict(attrs)
+            href = attrs_dict.get("href")
+            self.current_link = urllib.parse.urljoin(self.page_url, href) if href else None
+
+    def handle_data(self, data: str) -> None:
+        text = clean_text(data)
+        if not text:
+            return
+
+        if text == "Verkehrsmeldungen":
+            self.last_category_was_traffic = True
+
+        if self.current_tag:
+            self.current_parts.append(text)
+
+    def handle_endtag(self, tag: str) -> None:
+        if tag != self.current_tag:
+            if tag == "a":
+                self.current_link = None
+            return
+
+        text = clean_text(" ".join(self.current_parts))
+        if tag == "h3" and text:
+            self.flush_pending()
+            if self.last_category_was_traffic:
+                self.pending_title = text
+                self.pending_url = self.current_link
+            self.last_category_was_traffic = False
+        elif tag == "p" and text and self.pending_title and self.pending_detail is None:
+            self.pending_detail = text
+        elif tag == "a" and self.pending_title and self.pending_url is None and self.current_link:
+            self.pending_url = self.current_link
+
+        if tag == "a":
+            self.current_link = None
+        self.current_tag = None
+        self.current_parts = []
+
+    def close(self) -> None:
+        self.flush_pending()
+        super().close()
+
+    def flush_pending(self) -> None:
+        if not self.pending_title:
+            return
+
+        self.items.append(
+            NewsItem(
+                title=self.pending_title,
+                detail=self.pending_detail or self.pending_title,
+                url=self.pending_url or self.page_url,
+            )
+        )
+        self.pending_title = None
+        self.pending_detail = None
+        self.pending_url = None
+
+
+def get_gtfs_alerts(lines: set[str]) -> list[dict[str, object]]:
     routes = load_routes()
     feed = fetch_realtime_feed()
     now = iso_now()
@@ -125,7 +268,7 @@ def get_alerts(lines: set[str]) -> list[dict[str, object]]:
                 "line": line,
                 "title": title,
                 "detail": detail,
-                "severity": severity_for(alert, title, detail),
+                "severity": severity_for_gtfs(alert, title, detail),
                 "updatedAt": now,
                 "url": url or "https://www.uestra.de/aktuelles/neuigkeiten/aktuelle-meldungen/",
             }
@@ -188,7 +331,9 @@ def read_agencies(archive: zipfile.ZipFile) -> dict[str, str]:
         }
 
 
-def fetch_realtime_feed() -> gtfs_realtime_pb2.FeedMessage:
+def fetch_realtime_feed():
+    from google.transit import gtfs_realtime_pb2
+
     request = urllib.request.Request(REALTIME_URL, headers={"User-Agent": "UestraLinienblick/1.0"})
     with urllib.request.urlopen(request, timeout=30) as response:
         data = response.read()
@@ -198,7 +343,7 @@ def fetch_realtime_feed() -> gtfs_realtime_pb2.FeedMessage:
     return feed
 
 
-def lines_for_alert(alert: gtfs_realtime_pb2.Alert, routes: dict[str, RouteInfo], *texts: str) -> set[str]:
+def lines_for_alert(alert, routes: dict[str, RouteInfo], *texts: str) -> set[str]:
     lines: set[str] = set()
     for entity in alert.informed_entity:
         route_id = entity.route_id
@@ -219,7 +364,9 @@ def lines_for_alert(alert: gtfs_realtime_pb2.Alert, routes: dict[str, RouteInfo]
     return {line for line in lines if line}
 
 
-def severity_for(alert: gtfs_realtime_pb2.Alert, title: str, detail: str) -> str:
+def severity_for_gtfs(alert, title: str, detail: str) -> str:
+    from google.transit import gtfs_realtime_pb2
+
     text = f"{title} {detail}".lower()
     if any(word in text for word in ["ausfall", "entfällt", "entfallen", "cancel"]):
         return "cancellation"
@@ -237,6 +384,36 @@ def severity_for(alert: gtfs_realtime_pb2.Alert, title: str, detail: str) -> str
         return "disruption"
 
     return "info"
+
+
+def severity_from_text(title: str, detail: str) -> str:
+    text = f"{title} {detail}".lower()
+    if any(word in text for word in ["ausfall", "entfällt", "entfallen", "streik"]):
+        return "cancellation"
+    if any(word in text for word in ["ersatzverkehr", "umleitung", "gesperrt", "sperrung", "störung"]):
+        return "disruption"
+    if any(word in text for word in ["verspät", "verzöger"]):
+        return "delay"
+    return "info"
+
+
+def lines_from_text(*texts: str) -> set[str]:
+    text = " ".join(texts)
+    lines: set[str] = set()
+    patterns = [
+        r"\bLinie(?:n)?\s+([A-Za-z]?\d{1,3}[A-Za-z]?)\b",
+        r"\bLinie(?:n)?\s+((?:[A-Za-z]?\d{1,3}[A-Za-z]?\s*(?:,|und|/)?\s*){2,})",
+        r"\bauf folgenden Linien:\s*([^.;]+)",
+    ]
+
+    for pattern in patterns:
+        for match in re.findall(pattern, text, flags=re.IGNORECASE):
+            for part in re.split(r",|/|\bund\b|\s+", match):
+                line = normalize_line(part.strip("()"))
+                if re.fullmatch(r"[A-Z]?\d{1,3}[A-Z]?", line):
+                    lines.add(line)
+
+    return lines
 
 
 def translated_text(value: gtfs_realtime_pb2.TranslatedString) -> str:
@@ -261,6 +438,10 @@ def parse_lines(value: str) -> set[str]:
 
 def normalize_line(value: str) -> str:
     return value.strip().upper().replace(" ", "")
+
+
+def clean_text(value: str) -> str:
+    return re.sub(r"\s+", " ", html.unescape(value)).strip()
 
 
 def text_matches(text: str, needles: Iterable[str]) -> bool:

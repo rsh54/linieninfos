@@ -1,6 +1,6 @@
-# Echtzeit-Proxy
+# ÜSTRA-Proxy
 
-Dieser kleine Proxy wandelt GTFS-Realtime Service Alerts von `gtfs.de` in das JSON-Format der iPhone-App um.
+Dieser kleine Proxy liest aktuelle ÜSTRA-Verkehrsmeldungen von `uestra.de` und liefert sie im JSON-Format der iPhone-App aus. Das ist der schnelle Standardweg und lädt keinen deutschlandweiten GTFS-Feed.
 
 ## Starten
 
@@ -8,7 +8,6 @@ Dieser kleine Proxy wandelt GTFS-Realtime Service Alerts von `gtfs.de` in das JS
 cd realtime-proxy
 python3 -m venv .venv
 source .venv/bin/activate
-pip install -r requirements.txt
 python uestra_realtime_proxy.py
 ```
 
@@ -18,7 +17,7 @@ Dann im Browser testen:
 http://127.0.0.1:8765/alerts?lines=3,7,10
 ```
 
-Beim ersten Request lädt der Proxy einmal den statischen GTFS-Nahverkehrsfeed, um `route_id` auf Liniennummern und GVH/ÜSTRA/Hannover-Agenturen abbilden zu können. Das kann dauern und braucht Speicherplatz im Ordner `.cache`.
+Der Proxy filtert anhand der in der App ausgewählten Linien. Beispiel: `?lines=3,7,10`.
 
 ## In der iPhone-App
 
@@ -36,9 +35,19 @@ http://192.168.178.42:8765/alerts
 
 Die App hängt die aktuell ausgewählten Linien automatisch als `?lines=...` an.
 
+## Optionaler GTFS-Modus
+
+Der alte GTFS-Realtime-Modus ist noch vorhanden, aber bewusst nicht Standard, weil er einen großen deutschlandweiten Feed braucht. Falls du ihn testen willst:
+
+```bash
+pip install -r requirements.txt
+UESTRA_SOURCE=gtfs python uestra_realtime_proxy.py
+```
+
 ## Quellen
 
-- Realtime: `https://realtime.gtfs.de/realtime-free.pb`
-- Static GTFS: `https://download.gtfs.de/germany/nv_free/latest.zip`
+- ÜSTRA Meldungen: `https://www.uestra.de/aktuelles/neuigkeiten/aktuelle-meldungen/`
+- Optional GTFS-Realtime: `https://realtime.gtfs.de/realtime-free.pb`
+- Optional Static GTFS: `https://download.gtfs.de/germany/nv_free/latest.zip`
 
 Die gtfs.de-Daten stehen unter Creative-Commons-Lizenz und werden ohne Garantie auf Vollständigkeit oder Korrektheit bereitgestellt.

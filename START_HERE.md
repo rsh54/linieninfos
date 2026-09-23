@@ -57,7 +57,6 @@ Im Terminal:
 cd realtime-proxy
 python3 -m venv .venv
 source .venv/bin/activate
-pip install -r requirements.txt
 python uestra_realtime_proxy.py
 ```
 
