@@ -12,6 +12,7 @@
 		1A0000032B00000100000001 /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0000032B00000000000001 /* Models.swift */; };
 		1A0000042B00000100000001 /* AlertStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0000042B00000000000001 /* AlertStore.swift */; };
 		1A0000142B00000100000001 /* UestraWebClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0000142B00000000000001 /* UestraWebClient.swift */; };
+		1A0000152B00000100000001 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1A0000152B00000000000001 /* Assets.xcassets */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -21,6 +22,7 @@
 		1A0000042B00000000000001 /* AlertStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlertStore.swift; sourceTree = "<group>"; };
 		1A0000052B00000000000001 /* UestraLinienblick.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = UestraLinienblick.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		1A0000142B00000000000001 /* UestraWebClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UestraWebClient.swift; sourceTree = "<group>"; };
+		1A0000152B00000000000001 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -50,6 +52,7 @@
 				1A0000032B00000000000001 /* Models.swift */,
 				1A0000042B00000000000001 /* AlertStore.swift */,
 				1A0000142B00000000000001 /* UestraWebClient.swift */,
+				1A0000152B00000000000001 /* Assets.xcassets */,
 			);
 			path = UestraLinienblick;
 			sourceTree = "<group>";
@@ -120,6 +123,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1A0000152B00000100000001 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -271,6 +275,7 @@
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -301,6 +306,7 @@
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
