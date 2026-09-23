@@ -19,12 +19,15 @@ struct ContentView: View {
 
     var body: some View {
         NavigationStack {
-            List {
-                linesSection
-                statusSection
-                alertsSection
+            ScrollView {
+                LazyVStack(alignment: .leading, spacing: 16) {
+                    linesSection
+                    statusSection
+                    alertsSection
+                }
+                .padding()
             }
-            .listStyle(.insetGrouped)
+            .background(Color(.systemGroupedBackground))
             .navigationTitle("ÜSTRA Linienblick")
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
@@ -60,7 +63,7 @@ struct ContentView: View {
     }
 
     private var linesSection: some View {
-        Section("Beobachtete Linien") {
+        panel("Beobachtete Linien") {
             LazyVGrid(columns: lineColumns, alignment: .leading, spacing: 8) {
                 ForEach(selectedLines.sorted(), id: \.self) { line in
                     HStack(spacing: 6) {
@@ -85,6 +88,7 @@ struct ContentView: View {
                 TextField("Linie hinzufügen", text: $newLine)
                     .textInputAutocapitalization(.never)
                     .keyboardType(.numbersAndPunctuation)
+                    .textFieldStyle(.roundedBorder)
 
                 Button {
                     addLine()
@@ -98,7 +102,7 @@ struct ContentView: View {
     }
 
     private var statusSection: some View {
-        Section {
+        panel(nil) {
             if store.isLoading {
                 Label("Lade aktuelle Meldungen ...", systemImage: "clock")
             } else if let message = store.errorMessage {
@@ -118,14 +122,52 @@ struct ContentView: View {
     }
 
     private var alertsSection: some View {
-        Section("Meldungen") {
-            ForEach(store.alerts) { alert in
-                NavigationLink {
-                    AlertDetailView(alert: alert, severityColor: severityColor(alert.severity))
-                } label: {
-                    AlertRow(alert: alert, severityColor: severityColor(alert.severity))
+        VStack(alignment: .leading, spacing: 8) {
+            HStack {
+                Text("Meldungen")
+                    .font(.headline)
+
+                Spacer()
+
+                if store.alerts.isEmpty == false {
+                    Text("\(store.alerts.count)")
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(.secondary)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
+                        .background(Color(.secondarySystemGroupedBackground), in: Capsule())
                 }
             }
+
+            LazyVStack(spacing: 10) {
+                ForEach(store.alerts) { alert in
+                    NavigationLink {
+                        AlertDetailView(alert: alert, severityColor: severityColor(alert.severity))
+                    } label: {
+                        AlertRow(alert: alert, severityColor: severityColor(alert.severity))
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .padding()
+                            .background(Color(.secondarySystemGroupedBackground), in: RoundedRectangle(cornerRadius: 8))
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+        }
+    }
+
+    private func panel<Content: View>(_ title: String?, @ViewBuilder content: () -> Content) -> some View {
+        VStack(alignment: .leading, spacing: 10) {
+            if let title {
+                Text(title)
+                    .font(.headline)
+            }
+
+            VStack(alignment: .leading, spacing: 12) {
+                content()
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding()
+            .background(Color(.secondarySystemGroupedBackground), in: RoundedRectangle(cornerRadius: 8))
         }
     }
 
