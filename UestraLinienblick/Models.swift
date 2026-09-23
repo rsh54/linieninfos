@@ -35,26 +35,3 @@ struct TransitAlert: Identifiable, Codable, Equatable {
 struct AlertResponse: Decodable {
     let alerts: [TransitAlert]
 }
-
-extension TransitAlert {
-    static let samples: [TransitAlert] = [
-        TransitAlert(
-            id: "sample-7",
-            line: "7",
-            title: "Einschränkungen zwischen Wallensteinstraße und Wettbergen",
-            detail: "Zwischen einzelnen Haltestellen kann es zu Ersatzverkehr und längeren Fahrzeiten kommen.",
-            severity: .disruption,
-            updatedAt: Date(),
-            url: URL(string: "https://www.uestra.de/aktuelles/neuigkeiten/aktuelle-meldungen/")
-        ),
-        TransitAlert(
-            id: "sample-10",
-            line: "10",
-            title: "Fahrplanabweichungen im Innenstadtbereich",
-            detail: "Bitte prüfe vor Fahrtbeginn die aktuelle Verbindung.",
-            severity: .delay,
-            updatedAt: Date().addingTimeInterval(-1_800),
-            url: URL(string: "https://www.uestra.de/")
-        )
-    ]
-}
