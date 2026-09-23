@@ -1,6 +1,6 @@
 # ÜSTRA Linienblick
 
-Kleine SwiftUI-iPhone-App zum Anzeigen von ÜSTRA/GVH-Meldungen für ausgewählte Linien. Die App nutzt keine Push-Benachrichtigungen und keine SMS-Funktion. Sie lädt die Daten beim Öffnen, per Aktualisieren-Button oder per Pull-to-refresh.
+Kleine SwiftUI-iPhone-App zum Anzeigen von ÜSTRA-Meldungen für ausgewählte Linien. Die App nutzt keine Push-Benachrichtigungen und keine SMS-Funktion. Sie lädt die Daten direkt vom iPhone beim Öffnen, per Aktualisieren-Button oder per Pull-to-refresh.
 
 Wenn du nicht weißt, wo du anfangen sollst: Lies zuerst `START_HERE.md`.
 
@@ -44,7 +44,13 @@ Zum schnellen Testen liegt `sample-alerts.json` im Projektordner.
 
 ## ÜSTRA-Daten
 
-Für echte Meldungen gibt es den Ordner `realtime-proxy`. Der Proxy liest aktuelle ÜSTRA-Verkehrsmeldungen von uestra.de und liefert sie als App-JSON.
+Standardmäßig lädt die App direkt von `uestra.de`. Es muss kein Mac, Home Assistant oder Proxy laufen.
+
+Der Ordner `realtime-proxy` ist nur noch optional, falls du die Datenquelle lokal debuggen oder später anders bereitstellen willst.
+
+## Optionaler Proxy
+
+Der Proxy liest aktuelle ÜSTRA-Verkehrsmeldungen von uestra.de und liefert sie als App-JSON.
 
 ```bash
 cd realtime-proxy

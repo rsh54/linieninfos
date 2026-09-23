@@ -16,20 +16,12 @@ final class AlertStore: ObservableObject {
             lastRefresh = Date()
         }
 
-        guard let url = makeURL(endpoint: endpoint, selectedLines: selectedLines) else {
-            alerts = filter(TransitAlert.samples, selectedLines: selectedLines)
-            errorMessage = "Beispieldaten: Trage in den Einstellungen eine API-URL ein."
-            return
-        }
-
         do {
-            let (data, response) = try await URLSession.shared.data(from: url)
-            if let httpResponse = response as? HTTPURLResponse,
-               !(200...299).contains(httpResponse.statusCode) {
-                throw URLError(.badServerResponse)
+            if let url = makeURL(endpoint: endpoint, selectedLines: selectedLines) {
+                alerts = filter(try await fetchJSONAlerts(from: url), selectedLines: selectedLines)
+            } else {
+                alerts = filter(try await UestraWebClient().fetchAlerts(), selectedLines: selectedLines)
             }
-
-            alerts = filter(try decodeAlerts(from: data), selectedLines: selectedLines)
         } catch {
             alerts = filter(TransitAlert.samples, selectedLines: selectedLines)
             errorMessage = "Konnte die Meldungen nicht laden. Zeige Beispieldaten."
@@ -68,5 +60,15 @@ final class AlertStore: ObservableObject {
         }
 
         return try decoder.decode([TransitAlert].self, from: data)
+    }
+
+    private func fetchJSONAlerts(from url: URL) async throws -> [TransitAlert] {
+        let (data, response) = try await URLSession.shared.data(from: url)
+        if let httpResponse = response as? HTTPURLResponse,
+           !(200...299).contains(httpResponse.statusCode) {
+            throw URLError(.badServerResponse)
+        }
+
+        return try decodeAlerts(from: data)
     }
 }

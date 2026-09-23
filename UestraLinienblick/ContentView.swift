@@ -295,12 +295,12 @@ private struct SettingsView: View {
         NavigationStack {
             Form {
                 Section("Datenquelle") {
-                    TextField("https://…/uestra-alerts.json", text: $endpoint, axis: .vertical)
+                    TextField("Optional: https://…/uestra-alerts.json", text: $endpoint, axis: .vertical)
                         .textInputAutocapitalization(.never)
                         .keyboardType(.URL)
                         .autocorrectionDisabled()
 
-                    Text("Die App erwartet JSON als Array oder als Objekt mit `alerts`. Ohne URL zeigt sie Beispieldaten.")
+                    Text("Leer lassen: Die App lädt direkt von ÜSTRA. Eine eigene JSON-URL ist nur optional.")
                         .font(.footnote)
                         .foregroundStyle(.secondary)
                 }

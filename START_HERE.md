@@ -31,9 +31,9 @@ Ein kostenloser Apple-Developer-Account reicht meist zum lokalen Testen. Für Ap
 
 ## Was aktuell noch fehlt
 
-Die App kann eine JSON-URL laden. Für echte Meldungen liegt jetzt ein kleiner Proxy im Ordner `realtime-proxy`.
+Die App lädt echte ÜSTRA-Meldungen direkt vom iPhone. Du musst keine JSON-URL eintragen und keinen Mac als Datenserver laufen lassen.
 
-Die App erwartet Daten in diesem Format:
+Optional kann die App auch eine eigene JSON-URL laden. Sie erwartet dann Daten in diesem Format:
 
 ```json
 [
@@ -49,9 +49,9 @@ Die App erwartet Daten in diesem Format:
 ]
 ```
 
-## Echtzeitdaten starten
+## Optionalen Proxy starten
 
-Im Terminal:
+Nur falls du lokal debuggen willst:
 
 ```bash
 cd realtime-proxy

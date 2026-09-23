@@ -11,6 +11,7 @@
 		1A0000022B00000100000001 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0000022B00000000000001 /* ContentView.swift */; };
 		1A0000032B00000100000001 /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0000032B00000000000001 /* Models.swift */; };
 		1A0000042B00000100000001 /* AlertStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0000042B00000000000001 /* AlertStore.swift */; };
+		1A0000142B00000100000001 /* UestraWebClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0000142B00000000000001 /* UestraWebClient.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -19,6 +20,7 @@
 		1A0000032B00000000000001 /* Models.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Models.swift; sourceTree = "<group>"; };
 		1A0000042B00000000000001 /* AlertStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlertStore.swift; sourceTree = "<group>"; };
 		1A0000052B00000000000001 /* UestraLinienblick.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = UestraLinienblick.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		1A0000142B00000000000001 /* UestraWebClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UestraWebClient.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -47,6 +49,7 @@
 				1A0000022B00000000000001 /* ContentView.swift */,
 				1A0000032B00000000000001 /* Models.swift */,
 				1A0000042B00000000000001 /* AlertStore.swift */,
+				1A0000142B00000000000001 /* UestraWebClient.swift */,
 			);
 			path = UestraLinienblick;
 			sourceTree = "<group>";
@@ -131,6 +134,7 @@
 				1A0000022B00000100000001 /* ContentView.swift in Sources */,
 				1A0000032B00000100000001 /* Models.swift in Sources */,
 				1A0000042B00000100000001 /* AlertStore.swift in Sources */,
+				1A0000142B00000100000001 /* UestraWebClient.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
