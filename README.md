@@ -12,7 +12,8 @@ Wenn du nicht weißt, wo du anfangen sollst: Lies zuerst `START_HERE.md`.
 
 ## Datenquelle
 
-In der App kann unter Einstellungen eine JSON-URL eingetragen werden. Erwartet wird entweder ein Array:
+Standardmäßig lädt die App direkt von `uestra.de`. Unter Einstellungen kann optional eine eigene JSON-URL eingetragen werden. Erwartet wird dann entweder ein Array:
+
 
 ```json
 [
@@ -37,8 +38,6 @@ oder ein Objekt:
 ```
 
 Erlaubte `severity`-Werte sind `info`, `delay`, `disruption` und `cancellation`.
-
-Ohne URL zeigt die App Beispieldaten. Für echte Daten empfiehlt sich ein kleiner Home-Assistant- oder Server-Proxy, der die ÜSTRA/GVH-Meldungen in dieses Format bringt.
 
 Zum schnellen Testen liegt `sample-alerts.json` im Projektordner.
 

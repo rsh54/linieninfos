@@ -4,7 +4,7 @@
 
 Das Projekt ist eine iPhone-App für Xcode. Sie ist noch nicht im App Store und noch nicht als fertige `.ipa` gebaut. Du kannst sie aber mit Xcode direkt auf deinem iPhone oder im iPhone-Simulator starten.
 
-Ohne echte Datenquelle zeigt sie Beispieldaten. Für echte ÜSTRA-Meldungen brauchen wir als nächsten Schritt noch einen kleinen Daten-Endpunkt, am besten über Home Assistant oder einen Mini-Proxy.
+Die App lädt echte ÜSTRA-Meldungen direkt vom iPhone. Du musst keine JSON-URL eintragen und keinen Mac als Datenserver laufen lassen.
 
 ## Variante A: Schnell am Mac testen
 
@@ -16,7 +16,7 @@ Ohne echte Datenquelle zeigt sie Beispieldaten. Für echte ÜSTRA-Meldungen brau
 3. Oben in Xcode als Ziel einen iPhone-Simulator auswählen.
 4. Auf den Run-Button drücken.
 
-Dann startet die App mit Beispieldaten.
+Dann startet die App und lädt ÜSTRA-Meldungen direkt aus dem Internet.
 
 ## Variante B: Auf deinem echten iPhone testen
 
@@ -29,9 +29,7 @@ Dann startet die App mit Beispieldaten.
 
 Ein kostenloser Apple-Developer-Account reicht meist zum lokalen Testen. Für App-Store-Verteilung braucht man ein bezahltes Apple-Developer-Konto.
 
-## Was aktuell noch fehlt
-
-Die App lädt echte ÜSTRA-Meldungen direkt vom iPhone. Du musst keine JSON-URL eintragen und keinen Mac als Datenserver laufen lassen.
+## Optionale eigene Datenquelle
 
 Optional kann die App auch eine eigene JSON-URL laden. Sie erwartet dann Daten in diesem Format:
 

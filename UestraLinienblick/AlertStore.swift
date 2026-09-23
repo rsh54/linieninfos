@@ -23,8 +23,8 @@ final class AlertStore: ObservableObject {
                 alerts = filter(try await UestraWebClient().fetchAlerts(), selectedLines: selectedLines)
             }
         } catch {
-            alerts = filter(TransitAlert.samples, selectedLines: selectedLines)
-            errorMessage = "Konnte die Meldungen nicht laden. Zeige Beispieldaten."
+            alerts = []
+            errorMessage = "Konnte die ÜSTRA-Meldungen nicht laden."
         }
     }
 
