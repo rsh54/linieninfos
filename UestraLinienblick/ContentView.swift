@@ -8,7 +8,7 @@ struct ContentView: View {
 
     @State private var isShowingSettings = false
     @State private var newLine = ""
-    private let lineColumns = [GridItem(.adaptive(minimum: 72), spacing: 8, alignment: .leading)]
+    private let lineColumns = [GridItem(.adaptive(minimum: 96), spacing: 8, alignment: .leading)]
 
     private var selectedLines: Set<String> {
         Set(selectedLinesStorage
@@ -69,6 +69,8 @@ struct ContentView: View {
                     HStack(spacing: 6) {
                         Text(line)
                             .font(.headline)
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.8)
                         Button {
                             removeLine(line)
                         } label: {
@@ -80,6 +82,7 @@ struct ContentView: View {
                     }
                     .padding(.horizontal, 12)
                     .padding(.vertical, 8)
+                    .frame(minWidth: 88, alignment: .center)
                     .background(.tint.opacity(0.12), in: Capsule())
                 }
             }
