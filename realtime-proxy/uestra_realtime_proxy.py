@@ -33,6 +33,14 @@ AGENCY_MATCH = [
     for item in os.environ.get("UESTRA_AGENCY_MATCH", "üstra,uestra,gvh,großraum-verkehr,hannover").split(",")
     if item.strip()
 ]
+TEXT_CONTEXT_MATCH = [
+    item.strip().lower()
+    for item in os.environ.get(
+        "UESTRA_TEXT_CONTEXT_MATCH",
+        "üstra,uestra,gvh,hannover,garbsen,laatzen,langenhagen,ronnenberg,wettbergen,stoecken,stöcken,ahlem,misburg,anderten,messe,kröpcke,kroepcke"
+    ).split(",")
+    if item.strip()
+]
 CACHE_DIR = Path(os.environ.get("UESTRA_PROXY_CACHE", Path(__file__).with_name(".cache")))
 ROUTE_CACHE = CACHE_DIR / "routes.json"
 STATIC_ZIP = CACHE_DIR / "gtfs_nv_latest.zip"
@@ -197,8 +205,14 @@ def lines_for_alert(alert: gtfs_realtime_pb2.Alert, routes: dict[str, RouteInfo]
         if route_id in routes:
             lines.add(normalize_line(routes[route_id].short_name))
 
-    # Fallback for agency-wide alerts whose text contains "Linie 7" etc.
+    if lines:
+        return {line for line in lines if line}
+
+    # Fallback for agency-wide Hannover alerts whose text contains "Linie 7" etc.
     text = " ".join(texts)
+    if not text_matches(text, TEXT_CONTEXT_MATCH):
+        return set()
+
     for match in re.findall(r"\b(?:Linie|Linien)\s+([A-Za-z]?\d{1,3}[A-Za-z]?)\b", text, flags=re.IGNORECASE):
         lines.add(normalize_line(match))
 

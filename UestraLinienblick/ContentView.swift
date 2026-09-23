@@ -120,41 +120,11 @@ struct ContentView: View {
     private var alertsSection: some View {
         Section("Meldungen") {
             ForEach(store.alerts) { alert in
-                VStack(alignment: .leading, spacing: 8) {
-                    HStack {
-                        Text(alert.lineLabel)
-                            .font(.subheadline.weight(.semibold))
-                            .padding(.horizontal, 8)
-                            .padding(.vertical, 4)
-                            .background(severityColor(alert.severity).opacity(0.15), in: Capsule())
-
-                        Text(alert.severity.label)
-                            .font(.caption.weight(.semibold))
-                            .foregroundStyle(severityColor(alert.severity))
-
-                        Spacer()
-                    }
-
-                    Text(alert.title)
-                        .font(.headline)
-
-                    Text(alert.detail)
-                        .foregroundStyle(.secondary)
-
-                    HStack {
-                        Text(alert.updatedAt.formatted(date: .abbreviated, time: .shortened))
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-
-                        Spacer()
-
-                        if let url = alert.url {
-                            Link("Details", destination: url)
-                                .font(.caption.weight(.semibold))
-                        }
-                    }
+                NavigationLink {
+                    AlertDetailView(alert: alert, severityColor: severityColor(alert.severity))
+                } label: {
+                    AlertRow(alert: alert, severityColor: severityColor(alert.severity))
                 }
-                .padding(.vertical, 6)
             }
         }
     }
@@ -180,6 +150,87 @@ struct ContentView: View {
             .filter { $0 != line }
             .sorted()
             .joined(separator: ",")
+    }
+}
+
+private struct AlertRow: View {
+    let alert: TransitAlert
+    let severityColor: Color
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack {
+                Text(alert.lineLabel)
+                    .font(.subheadline.weight(.semibold))
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4)
+                    .background(severityColor.opacity(0.15), in: Capsule())
+
+                Text(alert.severity.label)
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(severityColor)
+
+                Spacer()
+            }
+
+            Text(alert.title)
+                .font(.headline)
+                .lineLimit(2)
+
+            Text(alert.detail)
+                .foregroundStyle(.secondary)
+                .lineLimit(3)
+
+            Text(alert.updatedAt.formatted(date: .abbreviated, time: .shortened))
+                .font(.caption)
+                .foregroundStyle(.secondary)
+        }
+        .padding(.vertical, 6)
+    }
+}
+
+private struct AlertDetailView: View {
+    let alert: TransitAlert
+    let severityColor: Color
+
+    var body: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 16) {
+                HStack {
+                    Text(alert.lineLabel)
+                        .font(.headline)
+                        .padding(.horizontal, 10)
+                        .padding(.vertical, 6)
+                        .background(severityColor.opacity(0.15), in: Capsule())
+
+                    Text(alert.severity.label)
+                        .font(.subheadline.weight(.semibold))
+                        .foregroundStyle(severityColor)
+                }
+
+                Text(alert.title)
+                    .font(.title2.weight(.semibold))
+
+                Text(alert.detail)
+                    .font(.body)
+                    .textSelection(.enabled)
+
+                Text("Aktualisiert: \(alert.updatedAt.formatted(date: .abbreviated, time: .shortened))")
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
+
+                if let url = alert.url {
+                    Link(destination: url) {
+                        Label("Quelle öffnen", systemImage: "safari")
+                    }
+                    .font(.headline)
+                }
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding()
+        }
+        .navigationTitle("Meldung")
+        .navigationBarTitleDisplayMode(.inline)
     }
 }
 
