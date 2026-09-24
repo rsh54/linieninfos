@@ -6,7 +6,7 @@ Linienblick ist ein privates, inoffizielles Open-Source-Projekt. Es gibt keine A
 
 ## Nutzen und Testen
 
-Die App zeigt aktuelle Abfahrten fuer eine gewaehlte Haltestelle und Verkehrsmeldungen/Stoerungen fuer die dort passenden Linien. Beim Wechsel der Haltestelle werden die Linien automatisch neu ermittelt. Nicht benoetigte Linien lassen sich in der Auswahl entfernen.
+Die App zeigt aktuelle Abfahrten fuer eine gewaehlte Haltestelle und Verkehrsmeldungen/Stoerungen fuer die dort passenden Linien. Beim Wechsel der Haltestelle wird zuerst eine Trefferliste angezeigt. Nach Auswahl des passenden Treffers werden die Linien automatisch neu ermittelt. Nicht benoetigte Linien lassen sich in der Auswahl entfernen.
 
 Oeffentliche Test-URL:
 

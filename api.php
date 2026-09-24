@@ -9,6 +9,13 @@ $requestedLines = parse_lines($_GET['lines'] ?? '');
 $type = $_GET['type'] ?? 'alerts';
 
 try {
+    if ($type === 'stop-search') {
+        echo json_encode([
+            'stops' => search_stops((string)($_GET['query'] ?? '')),
+        ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+        exit;
+    }
+
     if ($type === 'stop-lines') {
         echo json_encode([
             'lines' => get_stop_lines((string)($_GET['stop'] ?? '')),
@@ -59,6 +66,84 @@ try {
 } catch (Throwable $error) {
     http_response_code(502);
     echo json_encode(['error' => 'Daten konnten nicht geladen werden.'], JSON_UNESCAPED_UNICODE);
+}
+
+function search_stops(string $query): array
+{
+    $query = trim(preg_replace('/\s+/u', ' ', $query) ?? $query);
+    if ($query === '') {
+        return [];
+    }
+
+    $locations = [];
+    foreach (stop_search_candidates($query) as $candidate) {
+        foreach (['stop', 'any'] as $type) {
+            $payload = fetch_departure_payload_for_candidate($candidate, $type, 1);
+            foreach (($payload['locations'] ?? []) as $location) {
+                if (($location['type'] ?? '') !== 'stop' || !isset($location['id'])) {
+                    continue;
+                }
+
+                $id = (string)$location['id'];
+                if (isset($locations[$id])) {
+                    continue;
+                }
+
+                $name = clean_place_name((string)($location['name'] ?? $location['disassembledName'] ?? $id));
+                $locality = (string)($location['parent']['name'] ?? $location['properties']['mainLocality'] ?? '');
+                $products = product_classes_label($location['productClasses'] ?? []);
+
+                $locations[$id] = [
+                    'id' => $id,
+                    'name' => $name,
+                    'locality' => $locality,
+                    'products' => $products,
+                    'matchQuality' => (int)($location['matchQuality'] ?? 0),
+                    'isBest' => (bool)($location['isBest'] ?? false),
+                ];
+            }
+        }
+    }
+
+    $locations = array_values($locations);
+    usort($locations, static function ($a, $b) {
+        if ($a['isBest'] !== $b['isBest']) {
+            return $a['isBest'] ? -1 : 1;
+        }
+        if ($a['matchQuality'] !== $b['matchQuality']) {
+            return $b['matchQuality'] <=> $a['matchQuality'];
+        }
+        return strcmp(destination_key((string)$a['name']), destination_key((string)$b['name']));
+    });
+
+    return array_slice($locations, 0, 12);
+}
+
+function stop_search_candidates(string $query): array
+{
+    $candidates = [$query];
+    if (strpos($query, ',') === false && !is_stop_id($query)) {
+        $candidates[] = $query . ', Hannover';
+        $candidates[] = 'Hannover ' . $query;
+    }
+    return array_values(array_unique(array_filter($candidates)));
+}
+
+function product_classes_label($classes): string
+{
+    if (!is_array($classes)) {
+        return '';
+    }
+    $classes = array_map('intval', $classes);
+
+    $labels = [];
+    if (in_array(3, $classes, true)) {
+        $labels[] = 'Stadtbahn';
+    }
+    if (in_array(5, $classes, true) || in_array(6, $classes, true)) {
+        $labels[] = 'Bus';
+    }
+    return implode(', ', array_unique($labels));
 }
 
 function get_stop_lines(string $stop): array
@@ -291,6 +376,10 @@ function payload_has_requested_departures($payload, array $requestedLines): bool
 
 function departure_query_candidates(string $stop): array
 {
+    if (is_stop_id($stop)) {
+        return [$stop];
+    }
+
     $candidates = stop_query_candidates($stop);
     foreach ($candidates as $candidate) {
         foreach (stopfinder_ids($candidate) as $id) {
@@ -628,7 +717,15 @@ function normalize_stop(string $value): string
     if ($value === '') {
         return '';
     }
+    if (is_stop_id($value)) {
+        return $value;
+    }
     return strpos($value, ',') === false ? $value . ', Hannover' : $value;
+}
+
+function is_stop_id(string $value): bool
+{
+    return preg_match('/^[a-z]{2}:\d+:\d+/iu', trim($value)) === 1;
 }
 
 function clean_place_name(string $value): string

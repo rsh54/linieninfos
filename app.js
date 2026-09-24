@@ -7,6 +7,7 @@ const lineForm = document.querySelector("#lineForm");
 const lineInput = document.querySelector("#lineInput");
 const stopForm = document.querySelector("#stopForm");
 const stopInput = document.querySelector("#stopInput");
+const stopChoices = document.querySelector("#stopChoices");
 const statusBox = document.querySelector("#statusBox");
 const departuresList = document.querySelector("#departuresList");
 const departureCount = document.querySelector("#departureCount");
@@ -21,7 +22,9 @@ const closeDetail = document.querySelector("#closeDetail");
 let lines = loadLines();
 let alerts = [];
 let departures = [];
-let stopName = loadStop();
+let stopState = loadStop();
+let stopName = stopState.name;
+let stopId = stopState.id;
 
 lineForm.addEventListener("submit", event => {
   event.preventDefault();
@@ -30,7 +33,7 @@ lineForm.addEventListener("submit", event => {
 
 stopForm.addEventListener("submit", event => {
   event.preventDefault();
-  saveStop(stopInput.value);
+  searchStops(stopInput.value);
 });
 
 refreshButton.addEventListener("click", () => refreshAll());
@@ -62,30 +65,77 @@ function saveLines() {
 }
 
 function loadStop() {
-  return normalizeStop(localStorage.getItem(STOP_STORAGE_KEY) || "Paracelsusweg");
+  const saved = localStorage.getItem(STOP_STORAGE_KEY);
+  if (saved) {
+    try {
+      const parsed = JSON.parse(saved);
+      if (parsed && typeof parsed === "object" && parsed.name) {
+        return {
+          name: String(parsed.name).trim(),
+          id: String(parsed.id || "").trim()
+        };
+      }
+    } catch {
+      return { name: normalizeStop(saved), id: "" };
+    }
+  }
+  return { name: normalizeStop("Paracelsusweg"), id: "" };
 }
 
-async function saveStop(value) {
-  stopName = normalizeStop(value);
-  localStorage.setItem(STOP_STORAGE_KEY, stopName);
-  stopInput.value = stopName;
+function saveStopState() {
+  localStorage.setItem(STOP_STORAGE_KEY, JSON.stringify({ name: stopName, id: stopId }));
+}
 
-  if (!stopName) {
+async function searchStops(value) {
+  const query = String(value || "").trim().replace(/\s+/g, " ");
+  if (!query) {
+    stopName = "";
+    stopId = "";
     lines = [];
     departures = [];
     alerts = [];
+    saveStopState();
     saveLines();
+    stopInput.value = "";
+    clearStopChoices();
     renderLines();
     renderDepartures("Haltestelle eintragen, um Abfahrten zu sehen.");
     renderAlerts();
     return;
   }
 
+  setStatus("Suche Haltestellen ...");
+  refreshButton.disabled = true;
+
+  try {
+    const stops = await fetchStopChoices(query);
+    renderStopChoices(stops);
+    if (stops.length) {
+      setStatus("Bitte Haltestelle aus der Trefferliste auswählen.");
+    } else {
+      setStatus("Keine passende Haltestelle gefunden.", true);
+    }
+  } catch {
+    clearStopChoices();
+    setStatus("Konnte die Haltestellen nicht laden.", true);
+    updatedText.textContent = "Keine Verbindung";
+  } finally {
+    refreshButton.disabled = false;
+  }
+}
+
+async function selectStop(stop) {
+  stopName = String(stop.name || "").trim();
+  stopId = String(stop.id || "").trim();
+  saveStopState();
+  stopInput.value = stopName;
+  clearStopChoices();
+
   setStatus("Lade Linien dieser Haltestelle ...");
   refreshButton.disabled = true;
 
   try {
-    lines = await fetchLinesForStop(stopName);
+    lines = await fetchLinesForStop(currentStopQuery());
     saveLines();
     renderLines();
     if (lines.length) {
@@ -111,6 +161,35 @@ async function saveStop(value) {
   } finally {
     refreshButton.disabled = false;
   }
+}
+
+function currentStopQuery() {
+  return stopId || stopName;
+}
+
+function renderStopChoices(stops) {
+  stopChoices.replaceChildren();
+  stopChoices.hidden = !stops.length;
+  stops.forEach(stop => {
+    const button = document.createElement("button");
+    button.className = "stop-choice";
+    button.type = "button";
+
+    const title = document.createElement("strong");
+    title.textContent = stop.name || "Unbekannte Haltestelle";
+
+    const meta = document.createElement("span");
+    meta.textContent = [stop.locality, stop.products].filter(Boolean).join(" · ");
+
+    button.append(title, meta);
+    button.addEventListener("click", () => selectStop(stop));
+    stopChoices.append(button);
+  });
+}
+
+function clearStopChoices() {
+  stopChoices.replaceChildren();
+  stopChoices.hidden = true;
 }
 
 function normalizeStop(value) {
@@ -190,7 +269,7 @@ async function refreshDepartures() {
   }
 
   try {
-    const payload = await fetchDeparturesForStop(stopName, lines);
+    const payload = await fetchDeparturesForStop(currentStopQuery(), lines);
     departures = Array.isArray(payload.departures) ? payload.departures : [];
     renderDepartures(payload.message);
   } catch {
@@ -229,6 +308,17 @@ async function fetchLinesForStop(stop) {
     return [];
   }
   throw new Error("Invalid stop-lines response");
+}
+
+async function fetchStopChoices(queryText) {
+  const query = new URLSearchParams({
+    type: "stop-search",
+    query: queryText
+  });
+  const response = await fetch(`api.php?${query}`, { cache: "no-store" });
+  if (!response.ok) throw new Error(`HTTP ${response.status}`);
+  const payload = await response.json();
+  return Array.isArray(payload.stops) ? payload.stops : [];
 }
 
 async function refreshAlerts() {

@@ -152,6 +152,43 @@ h2 {
   font-weight: 700;
 }
 
+.stop-choices {
+  display: grid;
+  gap: 7px;
+  margin-top: 10px;
+}
+
+.stop-choices[hidden] {
+  display: none;
+}
+
+.stop-choice {
+  display: grid;
+  gap: 3px;
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 10px 11px;
+  background: #fbfeff;
+  color: var(--ink);
+  text-align: left;
+}
+
+.stop-choice strong {
+  font-size: 0.95rem;
+}
+
+.stop-choice span {
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+.stop-choice:focus,
+.stop-choice:hover {
+  border-color: #89c3cd;
+  background: #f2fbfc;
+}
+
 .status {
   margin-top: 12px;
   padding: 13px 14px;
