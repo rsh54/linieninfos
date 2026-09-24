@@ -30,6 +30,14 @@ https://nas1.de/linienblick/
 3. Teilen-Button antippen.
 4. `Zum Home-Bildschirm` waehlen.
 
+## Auf Android installieren
+
+1. Chrome oeffnen.
+2. Die URL der PWA oeffnen.
+3. Drei-Punkte-Menue oeffnen.
+4. `Zum Startbildschirm hinzufuegen` oder `App installieren` waehlen.
+5. Bestaetigen.
+
 ## Dateien
 
 - `index.html` - App-Oberflaeche
