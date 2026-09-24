@@ -1,8 +1,8 @@
-# UESTRA Linienblick PWA
+# Linienblick PWA
 
 Diese Version laeuft als Web-App auf normalem Webspace, z. B. all-inkl. Sie braucht keinen Apple Developer Account, kein TestFlight und kein Xcode.
 
-UESTRA Linienblick ist ein privates, inoffizielles Open-Source-Projekt. Es gibt keine Anmeldung, kein Tracking und keine offiziellen Garantien der UESTRA.
+Linienblick ist ein privates, inoffizielles Open-Source-Projekt. Es gibt keine Anmeldung, kein Tracking und keine offiziellen Garantien der UESTRA.
 
 ## Nutzen und Testen
 

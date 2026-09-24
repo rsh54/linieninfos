@@ -1,7 +1,7 @@
 {
-  "name": "ÜSTRA Linienblick",
-  "short_name": "ÜSTRA",
-  "description": "Aktuelle ÜSTRA-Meldungen für ausgewählte Linien.",
+  "name": "Linienblick",
+  "short_name": "Linienblick",
+  "description": "Aktuelle Abfahrten und Meldungen fuer ausgewaehlte Linien.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",

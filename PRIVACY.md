@@ -1,6 +1,6 @@
 # Datenschutz
 
-UESTRA Linienblick ist ein privates, inoffizielles Open-Source-Projekt.
+Linienblick ist ein privates, inoffizielles Open-Source-Projekt.
 
 ## Keine Anmeldung
 
