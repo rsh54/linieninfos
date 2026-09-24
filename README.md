@@ -1,67 +1,58 @@
-# ÜSTRA Linienblick
+# UESTRA Linienblick PWA
 
-Kleine SwiftUI-iPhone-App zum Anzeigen von ÜSTRA-Meldungen für ausgewählte Linien. Die App nutzt keine Push-Benachrichtigungen und keine SMS-Funktion. Sie lädt die Daten direkt vom iPhone beim Öffnen, per Aktualisieren-Button oder per Pull-to-refresh.
+Diese Version laeuft als Web-App auf normalem Webspace, z. B. all-inkl. Sie braucht keinen Apple Developer Account, kein TestFlight und kein Xcode.
 
-Wenn du nicht weißt, wo du anfangen sollst: Lies zuerst `START_HERE.md`.
+UESTRA Linienblick ist ein privates, inoffizielles Open-Source-Projekt. Es gibt keine Anmeldung, kein Tracking und keine offiziellen Garantien der UESTRA.
 
-## Öffnen
+## Nutzen und Testen
 
-1. Öffne `UestraLinienblick.xcodeproj` in Xcode.
-2. Wähle dein iPhone oder einen Simulator.
-3. Starte die App mit Run.
+Die App zeigt aktuelle Abfahrten fuer eine gewaehlte Haltestelle und Verkehrsmeldungen/Stoerungen fuer die dort passenden Linien. Beim Wechsel der Haltestelle werden die Linien automatisch neu ermittelt. Nicht benoetigte Linien lassen sich in der Auswahl entfernen.
 
-## Datenquelle
-
-Standardmäßig lädt die App direkt von `uestra.de`. Unter Einstellungen kann optional eine eigene JSON-URL eingetragen werden. Erwartet wird dann entweder ein Array:
-
-
-```json
-[
-  {
-    "id": "alert-1",
-    "line": "7",
-    "title": "Störung",
-    "detail": "Beschreibung",
-    "severity": "disruption",
-    "updatedAt": "2026-09-23T08:00:00Z",
-    "url": "https://www.uestra.de/"
-  }
-]
-```
-
-oder ein Objekt:
-
-```json
-{
-  "alerts": []
-}
-```
-
-Erlaubte `severity`-Werte sind `info`, `delay`, `disruption` und `cancellation`.
-
-Zum schnellen Testen liegt `sample-alerts.json` im Projektordner.
-
-## ÜSTRA-Daten
-
-Standardmäßig lädt die App direkt von `uestra.de`. Es muss kein Mac, Home Assistant oder Proxy laufen.
-
-Der Ordner `realtime-proxy` ist nur noch optional, falls du die Datenquelle lokal debuggen oder später anders bereitstellen willst.
-
-## Optionaler Proxy
-
-Der Proxy liest aktuelle ÜSTRA-Verkehrsmeldungen von uestra.de und liefert sie als App-JSON.
-
-```bash
-cd realtime-proxy
-python3 -m venv .venv
-source .venv/bin/activate
-python uestra_realtime_proxy.py
-```
-
-Danach in der App als Datenquelle eintragen:
+Oeffentliche Test-URL:
 
 ```text
-http://127.0.0.1:8765/alerts
+https://nas1.de/uestra/
 ```
 
-Im iPhone-Simulator zeigt `127.0.0.1` auf den Mac. Auf einem echten iPhone brauchst du die lokale IP-Adresse des Macs.
+## Hochladen
+
+1. Auf dem Webspace einen Ordner anlegen, z. B. `uestra`.
+2. Den kompletten Inhalt dieses Ordners hochladen.
+3. HTTPS fuer die Domain/Subdomain aktivieren.
+4. Im Browser oeffnen:
+
+   `https://deine-domain.de/uestra/`
+
+## Auf dem iPhone installieren
+
+1. Safari oeffnen.
+2. Die URL der PWA oeffnen.
+3. Teilen-Button antippen.
+4. `Zum Home-Bildschirm` waehlen.
+
+## Dateien
+
+- `index.html` - App-Oberflaeche
+- `app.js` - Linien, Abfahrtshaltestelle, Laden, Darstellung
+- `style.css` - Layout
+- `api.php` - all-inkl/PHP-Proxy fuer UESTRA-Meldungen
+- `manifest.json` und `icons/` - Homescreen-App
+- `sw.js` - Service Worker fuer App-Shell-Cache
+- `PRIVACY.md` - Datenschutz- und Transparenzhinweise
+- `LICENSE` - Open-Source-Lizenz
+
+## Hinweise
+
+`api.php` ruft UESTRA-Webmeldungen und EFA-Abfahrten serverseitig ab und gibt JSON zurueck. Das vermeidet CORS-Probleme im iPhone-Safari.
+
+Die App ist keine offizielle App der UESTRA. Fuer verbindliche Informationen gelten die offiziellen Angebote der UESTRA und der jeweiligen Verkehrsunternehmen.
+
+## Abfahrten
+
+Die App zeigt Abfahrten vor den Meldungen. Die Haltestelle wird lokal im Browser gespeichert. Beispiel-Endpunkt:
+
+```text
+api.php?type=departures&stop=Paracelsusweg&lines=3,7,9,10
+```
+
+Wenn kein Ort per Komma angegeben ist, ergaenzt die App automatisch `, Hannover`. `Paracelsusweg`, `Paracelsusweg, Hannover` und `Hannover, Paracelsusweg` sind dadurch zulaessige Eingaben.

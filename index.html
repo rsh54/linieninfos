@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#087e91">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="ÜSTRA">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <title>ÜSTRA Linienblick</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <link rel="icon" href="icons/icon-192.png">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main class="app-shell">
+    <header class="topbar">
+      <div>
+        <h1>ÜSTRA Linienblick</h1>
+        <p id="updatedText">Bereit</p>
+      </div>
+      <button class="icon-button" id="refreshButton" type="button" aria-label="Aktualisieren">
+        ↻
+      </button>
+    </header>
+
+    <section class="panel">
+      <h2>Linien</h2>
+      <div class="chips" id="lineChips"></div>
+      <form class="line-form" id="lineForm">
+        <input id="lineInput" name="line" inputmode="text" autocomplete="off" placeholder="Linie hinzufügen">
+        <button type="submit">Hinzufügen</button>
+      </form>
+    </section>
+
+    <section class="panel">
+      <h2>Abfahrtshaltestelle</h2>
+      <form class="stop-form" id="stopForm">
+        <input id="stopInput" name="stop" autocomplete="off" placeholder="z. B. Paracelsusweg">
+        <button type="submit">Speichern</button>
+      </form>
+    </section>
+
+    <section class="status" id="statusBox" hidden></section>
+
+    <section class="departures-head">
+      <h2>Nächste Abfahrten</h2>
+      <span id="departureCount">0</span>
+    </section>
+
+    <section class="departures" id="departuresList"></section>
+
+    <section class="alerts-head">
+      <h2>Meldungen</h2>
+      <span id="alertCount">0</span>
+    </section>
+
+    <section class="alerts" id="alertsList"></section>
+
+    <footer class="trust-footer">
+      <p>Open Source · Keine Anmeldung · Kein Tracking · Inoffizielles Projekt</p>
+      <nav aria-label="Vertrauenshinweise">
+        <a href="https://github.com/rsh54/uestra" rel="noopener">Quellcode</a>
+        <a href="PRIVACY.md">Datenschutz</a>
+        <span>Daten: UESTRA/EFA</span>
+      </nav>
+    </footer>
+  </main>
+
+  <dialog id="detailDialog">
+    <article class="detail">
+      <button class="close-button" id="closeDetail" type="button" aria-label="Schließen">×</button>
+      <div id="detailContent"></div>
+    </article>
+  </dialog>
+
+  <script src="app.js" defer></script>
+</body>
+</html>
