@@ -1,6 +1,7 @@
 const DEFAULT_LINES = ["3", "7", "9", "10"];
 const LINES_STORAGE_KEY = "uestra-lines";
 const STOP_STORAGE_KEY = "uestra-stop";
+const STOP_CHOICES_PAGE_SIZE = 5;
 
 const lineChips = document.querySelector("#lineChips");
 const lineForm = document.querySelector("#lineForm");
@@ -25,6 +26,8 @@ let departures = [];
 let stopState = loadStop();
 let stopName = stopState.name;
 let stopId = stopState.id;
+let stopSearchResults = [];
+let visibleStopChoices = STOP_CHOICES_PAGE_SIZE;
 
 lineForm.addEventListener("submit", event => {
   event.preventDefault();
@@ -168,9 +171,15 @@ function currentStopQuery() {
 }
 
 function renderStopChoices(stops) {
+  stopSearchResults = Array.isArray(stops) ? stops : [];
+  visibleStopChoices = STOP_CHOICES_PAGE_SIZE;
+  renderVisibleStopChoices();
+}
+
+function renderVisibleStopChoices() {
   stopChoices.replaceChildren();
-  stopChoices.hidden = !stops.length;
-  stops.forEach(stop => {
+  stopChoices.hidden = !stopSearchResults.length;
+  stopSearchResults.slice(0, visibleStopChoices).forEach(stop => {
     const button = document.createElement("button");
     button.className = "stop-choice";
     button.type = "button";
@@ -185,9 +194,23 @@ function renderStopChoices(stops) {
     button.addEventListener("click", () => selectStop(stop));
     stopChoices.append(button);
   });
+
+  if (visibleStopChoices < stopSearchResults.length) {
+    const moreButton = document.createElement("button");
+    moreButton.className = "stop-more";
+    moreButton.type = "button";
+    moreButton.textContent = `Mehr (${stopSearchResults.length - visibleStopChoices})`;
+    moreButton.addEventListener("click", () => {
+      visibleStopChoices += STOP_CHOICES_PAGE_SIZE;
+      renderVisibleStopChoices();
+    });
+    stopChoices.append(moreButton);
+  }
 }
 
 function clearStopChoices() {
+  stopSearchResults = [];
+  visibleStopChoices = STOP_CHOICES_PAGE_SIZE;
   stopChoices.replaceChildren();
   stopChoices.hidden = true;
 }

@@ -189,6 +189,21 @@ h2 {
   background: #f2fbfc;
 }
 
+.stop-more {
+  width: 100%;
+  border: 1px solid #89c3cd;
+  border-radius: 8px;
+  padding: 10px 11px;
+  background: #e8f7f9;
+  color: var(--brand-strong);
+  font-weight: 800;
+}
+
+.stop-more:focus,
+.stop-more:hover {
+  background: #d9f0f4;
+}
+
 .status {
   margin-top: 12px;
   padding: 13px 14px;

@@ -49,10 +49,12 @@ Die App ist keine offizielle App der UESTRA. Fuer verbindliche Informationen gel
 
 ## Abfahrten
 
-Die App zeigt Abfahrten vor den Meldungen. Die Haltestelle wird lokal im Browser gespeichert. Beispiel-Endpunkt:
+Die App zeigt Abfahrten vor den Meldungen. Die Haltestelle wird lokal im Browser gespeichert. Bei der Eingabe einer Haltestelle zeigt die App eine Trefferliste an. Nach Auswahl eines Treffers wird die konkrete EFA-Haltestelle gespeichert.
+
+Beispiel-Endpunkt:
 
 ```text
 api.php?type=departures&stop=Paracelsusweg&lines=3,7,9,10
 ```
 
-Wenn kein Ort per Komma angegeben ist, ergaenzt die App automatisch `, Hannover`. `Paracelsusweg`, `Paracelsusweg, Hannover` und `Hannover, Paracelsusweg` sind dadurch zulaessige Eingaben.
+Die Trefferliste wird in der App seitenweise angezeigt; weitere Treffer erscheinen ueber `Mehr`.
