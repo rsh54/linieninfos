@@ -26,6 +26,7 @@ let departures = [];
 let stopState = loadStop();
 let stopName = stopState.name;
 let stopId = stopState.id;
+let stopLocality = stopState.locality;
 let stopSearchResults = [];
 let visibleStopChoices = STOP_CHOICES_PAGE_SIZE;
 
@@ -75,18 +76,19 @@ function loadStop() {
       if (parsed && typeof parsed === "object" && parsed.name) {
         return {
           name: String(parsed.name).trim(),
-          id: String(parsed.id || "").trim()
+          id: String(parsed.id || "").trim(),
+          locality: String(parsed.locality || "").trim()
         };
       }
     } catch {
-      return { name: normalizeStop(saved), id: "" };
+      return { name: normalizeStop(saved), id: "", locality: localityFromStopName(saved) };
     }
   }
-  return { name: normalizeStop("Paracelsusweg, Hannover"), id: "" };
+  return { name: normalizeStop("Paracelsusweg, Hannover"), id: "", locality: "Hannover" };
 }
 
 function saveStopState() {
-  localStorage.setItem(STOP_STORAGE_KEY, JSON.stringify({ name: stopName, id: stopId }));
+  localStorage.setItem(STOP_STORAGE_KEY, JSON.stringify({ name: stopName, id: stopId, locality: stopLocality }));
 }
 
 async function searchStops(value) {
@@ -94,6 +96,7 @@ async function searchStops(value) {
   if (!query) {
     stopName = "";
     stopId = "";
+    stopLocality = "";
     lines = [];
     departures = [];
     alerts = [];
@@ -130,6 +133,7 @@ async function searchStops(value) {
 async function selectStop(stop) {
   stopName = String(stop.name || "").trim();
   stopId = String(stop.id || "").trim();
+  stopLocality = String(stop.locality || "").trim();
   saveStopState();
   stopInput.value = stopName;
   clearStopChoices();
@@ -168,6 +172,15 @@ async function selectStop(stop) {
 
 function currentStopQuery() {
   return stopId || stopName;
+}
+
+function isHannoverStop() {
+  return stopLocality.toLocaleLowerCase("de") === "hannover";
+}
+
+function localityFromStopName(value) {
+  const text = String(value || "");
+  return /(?:^|,\s*)hannover\b/i.test(text) ? "Hannover" : "";
 }
 
 function renderStopChoices(stops) {
@@ -349,6 +362,11 @@ async function refreshAlerts() {
     renderAlerts();
     return;
   }
+  if (!isHannoverStop()) {
+    alerts = [];
+    renderAlerts("Verkehrsmeldungen nur für Hannover.");
+    return;
+  }
 
   try {
     const query = new URLSearchParams({
@@ -423,14 +441,14 @@ function destinationKey(value) {
   return String(value || "").trim().toLocaleLowerCase("de");
 }
 
-function renderAlerts() {
+function renderAlerts(message) {
   alertsList.replaceChildren();
   alertCount.textContent = String(alerts.length);
 
   if (!alerts.length) {
     const empty = document.createElement("div");
     empty.className = "empty";
-    empty.textContent = "Keine Meldungen für deine Linien.";
+    empty.textContent = message || "Keine Meldungen für deine Linien.";
     alertsList.append(empty);
     return;
   }
