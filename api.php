@@ -121,12 +121,7 @@ function search_stops(string $query): array
 
 function stop_search_candidates(string $query): array
 {
-    $candidates = [$query];
-    if (strpos($query, ',') === false && !is_stop_id($query)) {
-        $candidates[] = $query . ', Hannover';
-        $candidates[] = 'Hannover ' . $query;
-    }
-    return array_values(array_unique(array_filter($candidates)));
+    return [$query];
 }
 
 function product_classes_label($classes): string
@@ -720,7 +715,7 @@ function normalize_stop(string $value): string
     if (is_stop_id($value)) {
         return $value;
     }
-    return strpos($value, ',') === false ? $value . ', Hannover' : $value;
+    return $value;
 }
 
 function is_stop_id(string $value): bool

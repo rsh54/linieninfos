@@ -82,7 +82,7 @@ function loadStop() {
       return { name: normalizeStop(saved), id: "" };
     }
   }
-  return { name: normalizeStop("Paracelsusweg"), id: "" };
+  return { name: normalizeStop("Paracelsusweg, Hannover"), id: "" };
 }
 
 function saveStopState() {
@@ -217,8 +217,7 @@ function clearStopChoices() {
 
 function normalizeStop(value) {
   const stop = String(value || "").trim().replace(/\s+/g, " ");
-  if (!stop) return "";
-  return stop.includes(",") ? stop : `${stop}, Hannover`;
+  return stop;
 }
 
 function normalizeLine(value) {
