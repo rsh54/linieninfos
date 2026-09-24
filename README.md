@@ -11,17 +11,17 @@ Die App zeigt aktuelle Abfahrten fuer eine gewaehlte Haltestelle und Verkehrsmel
 Oeffentliche Test-URL:
 
 ```text
-https://nas1.de/uestra/
+https://nas1.de/linienblick/
 ```
 
 ## Hochladen
 
-1. Auf dem Webspace einen Ordner anlegen, z. B. `uestra`.
+1. Auf dem Webspace einen Ordner anlegen, z. B. `linienblick`.
 2. Den kompletten Inhalt dieses Ordners hochladen.
 3. HTTPS fuer die Domain/Subdomain aktivieren.
 4. Im Browser oeffnen:
 
-   `https://deine-domain.de/uestra/`
+   `https://deine-domain.de/linienblick/`
 
 ## Auf dem iPhone installieren
 
