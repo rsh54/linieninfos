@@ -2,11 +2,11 @@
 
 Diese Version laeuft als Web-App auf normalem Webspace, z. B. all-inkl. Sie braucht keinen Apple Developer Account, kein TestFlight und kein Xcode.
 
-Linienblick ist ein privates, inoffizielles Open-Source-Projekt. Es gibt keine Anmeldung, kein Tracking und keine offiziellen Garantien der UESTRA.
+Linienblick ist ein privates, inoffizielles Open-Source-Projekt. Es gibt keine Anmeldung und kein Tracking.
 
 ## Nutzen und Testen
 
-Die App zeigt aktuelle Abfahrten fuer eine gewaehlte Haltestelle und Verkehrsmeldungen/Stoerungen fuer die dort passenden Linien. Beim Wechsel der Haltestelle wird zuerst eine Trefferliste angezeigt. Nach Auswahl des passenden Treffers werden die Linien automatisch neu ermittelt. Nicht benoetigte Linien lassen sich in der Auswahl entfernen.
+Die App zeigt aktuelle Abfahrten fuer eine gewaehlte Haltestelle und Verkehrsmeldungen (nur Hannover) fuer die dort passenden Linien. Beim Wechsel der Haltestelle wird zuerst eine Trefferliste angezeigt. Nach Auswahl des passenden Treffers werden die Linien automatisch neu ermittelt. Nicht benoetigte Linien lassen sich in der Auswahl entfernen.
 
 Oeffentliche Test-URL:
 
@@ -35,7 +35,7 @@ https://nas1.de/linienblick/
 - `index.html` - App-Oberflaeche
 - `app.js` - Linien, Abfahrtshaltestelle, Laden, Darstellung
 - `style.css` - Layout
-- `api.php` - all-inkl/PHP-Proxy fuer UESTRA-Meldungen
+- `api.php` - all-inkl/PHP-Proxy fuer EFA-Abfahrten und Verkehrsmeldungen
 - `manifest.json` und `icons/` - Homescreen-App
 - `sw.js` - Service Worker fuer App-Shell-Cache
 - `PRIVACY.md` - Datenschutz- und Transparenzhinweise
@@ -43,9 +43,9 @@ https://nas1.de/linienblick/
 
 ## Hinweise
 
-`api.php` ruft UESTRA-Webmeldungen und EFA-Abfahrten serverseitig ab und gibt JSON zurueck. Das vermeidet CORS-Probleme im iPhone-Safari.
+`api.php` ruft EFA-Abfahrten und Verkehrsmeldungen (nur Hannover) serverseitig ab und gibt JSON zurueck. Das vermeidet CORS-Probleme im iPhone-Safari.
 
-Die App ist keine offizielle App der UESTRA. Fuer verbindliche Informationen gelten die offiziellen Angebote der UESTRA und der jeweiligen Verkehrsunternehmen.
+Die App ist ein privates, inoffizielles Projekt. Fuer verbindliche Informationen gelten die offiziellen Angebote der jeweiligen Verkehrsunternehmen.
 
 ## Abfahrten
 

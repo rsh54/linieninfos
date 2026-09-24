@@ -16,8 +16,8 @@ Die App speichert die ausgewaehlte Haltestelle und Linien lokal im Browser des G
 
 ## Serverabrufe
 
-`api.php` ruft serverseitig oeffentliche UESTRA-Meldungen und EFA-Abfahrtsdaten ab und gibt sie als JSON an die App weiter. Dabei werden die eingegebene Haltestelle und die ausgewaehlten Linien an den eigenen Webspace und an die genutzten Fahrplandienste uebertragen.
+`api.php` ruft serverseitig EFA-Abfahrtsdaten und Verkehrsmeldungen (nur Hannover) ab und gibt sie als JSON an die App weiter. Dabei werden die eingegebene Haltestelle und die ausgewaehlten Linien an den eigenen Webspace und an die genutzten Fahrplandienste uebertragen.
 
 ## Inoffizielles Projekt
 
-Diese App ist keine offizielle App der UESTRA. Fuer verbindliche Informationen gelten die offiziellen Angebote der UESTRA und der jeweiligen Verkehrsunternehmen.
+Diese App ist ein privates, inoffizielles Projekt. Fuer verbindliche Informationen gelten die offiziellen Angebote der jeweiligen Verkehrsunternehmen.
