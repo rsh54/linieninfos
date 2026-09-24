@@ -1,4 +1,4 @@
-const CACHE_NAME = "linienblick-v29";
+const CACHE_NAME = "linienblick-v30";
 const APP_SHELL = [
   "./",
   "index.html",

@@ -116,7 +116,7 @@ function search_stops(string $query): array
         return strcmp(destination_key((string)$a['name']), destination_key((string)$b['name']));
     });
 
-    return array_slice($locations, 0, 12);
+    return array_slice($locations, 0, 30);
 }
 
 function stop_search_candidates(string $query): array
