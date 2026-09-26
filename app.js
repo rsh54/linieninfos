@@ -423,6 +423,7 @@ function renderDepartures(message) {
     row.innerHTML = `
       <div class="departure-platform">${escapeHTML(platform)}</div>
       <div class="departure-time">${escapeHTML(departure.minutesText)}</div>
+      <div class="departure-delay">${escapeHTML(departure.delayText || "")}</div>
       <div class="departure-line">${escapeHTML(departure.line)}</div>
       <div class="departure-destination">${escapeHTML(departure.destination)}</div>
     `;

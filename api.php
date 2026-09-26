@@ -235,12 +235,15 @@ function get_departures(string $stop, array $requestedLines): array
             continue;
         }
 
-        $time = (string)($event['departureTimeEstimated'] ?? $event['departureTimePlanned'] ?? '');
+        $plannedTime = $event['departureTimePlanned'] ?? null;
+        $estimatedTime = $event['departureTimeEstimated'] ?? null;
+        $time = (string)($estimatedTime ?? $plannedTime ?? '');
         $timestamp = strtotime($time);
         if ($timestamp === false) {
             continue;
         }
 
+        $delayMinutes = delay_minutes($plannedTime, $estimatedTime);
         $minutes = max(0, (int)round(($timestamp - time()) / 60));
         $destination = $transport['destination']['name'] ?? ($transport['destination']['disassembledName'] ?? '');
         $location = $event['location'] ?? [];
@@ -251,8 +254,10 @@ function get_departures(string $stop, array $requestedLines): array
             'line' => $line,
             'destination' => clean_place_name((string)$destination),
             'stopName' => clean_place_name((string)($location['name'] ?? $stop)),
-            'plannedTime' => $event['departureTimePlanned'] ?? null,
-            'estimatedTime' => $event['departureTimeEstimated'] ?? null,
+            'plannedTime' => $plannedTime,
+            'estimatedTime' => $estimatedTime,
+            'delayMinutes' => $delayMinutes,
+            'delayText' => $delayMinutes > 0 ? '+' . $delayMinutes : '',
             'minutes' => $minutes,
             'minutesText' => $minutes <= 0 ? 'jetzt' : $minutes . ' min',
             'platform' => (string)($locationProperties['platform'] ?? $properties['platform'] ?? ''),
@@ -301,6 +306,21 @@ function get_departures(string $stop, array $requestedLines): array
     });
 
     return $limitedDepartures;
+}
+
+function delay_minutes($plannedTime, $estimatedTime): int
+{
+    if (!$plannedTime || !$estimatedTime) {
+        return 0;
+    }
+
+    $plannedTimestamp = strtotime((string)$plannedTime);
+    $estimatedTimestamp = strtotime((string)$estimatedTime);
+    if ($plannedTimestamp === false || $estimatedTimestamp === false) {
+        return 0;
+    }
+
+    return max(0, (int)round(($estimatedTimestamp - $plannedTimestamp) / 60));
 }
 
 function fetch_departure_payload(string $stop, array $requestedLines): ?array

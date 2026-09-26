@@ -290,7 +290,7 @@ h2 {
 
 .departure-row {
   display: grid;
-  grid-template-columns: 42px 52px 46px minmax(0, 1fr);
+  grid-template-columns: 42px 52px 34px 46px minmax(0, 1fr);
   gap: 8px;
   align-items: center;
   min-height: 30px;
@@ -318,6 +318,15 @@ h2 {
   font-size: 0.95rem;
   font-weight: 800;
   color: var(--brand-strong);
+  text-align: right;
+  white-space: nowrap;
+}
+
+.departure-delay {
+  min-width: 0;
+  color: #b64800;
+  font-size: 0.82rem;
+  font-weight: 850;
   text-align: right;
   white-space: nowrap;
 }
