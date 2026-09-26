@@ -180,7 +180,7 @@ function stop_lines_payload_score(array $payload): int
     $totalCount = 0;
     foreach ($payload['stopEvents'] ?? [] as $event) {
         $transport = $event['transportation'] ?? [];
-        $line = normalize_line((string)($transport['number'] ?? $transport['disassembledName'] ?? ''));
+        $line = line_from_transport($transport);
         if ($line === '') {
             continue;
         }
@@ -201,7 +201,7 @@ function stop_lines_from_payload(array $payload): array
 
     foreach ($payload['stopEvents'] ?? [] as $event) {
         $transport = $event['transportation'] ?? [];
-        $line = normalize_line((string)($transport['number'] ?? $transport['disassembledName'] ?? ''));
+        $line = line_from_transport($transport);
         if ($line === '') {
             continue;
         }
@@ -227,11 +227,11 @@ function get_departures(string $stop, array $requestedLines): array
     $departures = [];
     foreach ($payload['stopEvents'] as $event) {
         $transport = $event['transportation'] ?? [];
-        $line = normalize_line((string)($transport['number'] ?? $transport['disassembledName'] ?? ''));
+        $line = line_from_transport($transport);
         if ($line === '') {
             continue;
         }
-        if ($requestedLines && !in_array($line, $requestedLines, true)) {
+        if ($requestedLines && !line_is_requested($line, $requestedLines)) {
             continue;
         }
 
@@ -381,8 +381,8 @@ function payload_has_requested_departures($payload, array $requestedLines): bool
 
     foreach ($payload['stopEvents'] as $event) {
         $transport = $event['transportation'] ?? [];
-        $line = normalize_line((string)($transport['number'] ?? $transport['disassembledName'] ?? ''));
-        if ($line !== '' && in_array($line, $requestedLines, true)) {
+        $line = line_from_transport($transport);
+        if ($line !== '' && line_is_requested($line, $requestedLines)) {
             return true;
         }
     }
@@ -719,11 +719,51 @@ function parse_lines(string $value): array
     return array_values(array_unique($lines));
 }
 
+function line_is_requested(string $line, array $requestedLines): bool
+{
+    if (in_array($line, $requestedLines, true)) {
+        return true;
+    }
+
+    if (preg_match('/^(?:ICE|IC)(\d+)$/u', $line, $matches)) {
+        return in_array($matches[1], $requestedLines, true);
+    }
+
+    return false;
+}
+
 function normalize_line(string $value): string
 {
     $value = strtoupper(trim($value));
     $value = preg_replace('/\s+/u', '', $value) ?? $value;
     return $value;
+}
+
+function line_from_transport($transport): string
+{
+    if (!is_array($transport)) {
+        return '';
+    }
+
+    $number = normalize_line((string)($transport['number'] ?? $transport['disassembledName'] ?? ''));
+    if ($number === '') {
+        return '';
+    }
+
+    $name = (string)($transport['name'] ?? '');
+    $product = $transport['product'] ?? [];
+    $productClass = is_array($product) ? (int)($product['class'] ?? -1) : -1;
+
+    if (preg_match('/^\d+$/u', $number)) {
+        if (preg_match('/\bICE\b|InterCityExpress/iu', $name) || $productClass === 16) {
+            return 'ICE' . $number;
+        }
+        if (preg_match('/\bIC\b|InterCity/iu', $name) || $productClass === 15) {
+            return 'IC' . $number;
+        }
+    }
+
+    return $number;
 }
 
 function normalize_stop(string $value): string
