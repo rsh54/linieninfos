@@ -416,12 +416,18 @@ function renderDepartures(message) {
   table.className = "departure-table";
 
   let previousPlatform = "";
-  sortDepartures(departures).forEach((departure, index) => {
+  sortDepartures(departures).forEach(departure => {
     const platform = platformKey(departure.platform);
+    if (platform !== previousPlatform) {
+      const platformRow = document.createElement("div");
+      platformRow.className = previousPlatform ? "departure-platform-heading platform-change" : "departure-platform-heading";
+      platformRow.textContent = platform;
+      table.append(platformRow);
+    }
+
     const row = document.createElement("article");
-    row.className = index > 0 && platform !== previousPlatform ? "departure-row platform-change" : "departure-row";
+    row.className = "departure-row";
     row.innerHTML = `
-      <div class="departure-platform">${escapeHTML(platform)}</div>
       <div class="departure-time">${escapeHTML(departure.minutesText)}</div>
       <div class="departure-delay">${escapeHTML(departure.delayText || "")}</div>
       <div class="departure-line">${escapeHTML(departure.line)}</div>

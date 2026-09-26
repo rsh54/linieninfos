@@ -290,7 +290,7 @@ h2 {
 
 .departure-row {
   display: grid;
-  grid-template-columns: 42px 52px 34px 46px minmax(0, 1fr);
+  grid-template-columns: 52px 34px 46px minmax(0, 1fr);
   gap: 8px;
   align-items: center;
   min-height: 30px;
@@ -302,16 +302,18 @@ h2 {
   border-top: 0;
 }
 
-.departure-row.platform-change {
-  border-top: 3px solid var(--line);
+.departure-platform-heading {
+  padding: 7px 10px 4px;
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 850;
+  letter-spacing: 0;
+  text-transform: uppercase;
+  background: #f6fbfc;
 }
 
-.departure-platform {
-  color: var(--muted);
-  font-size: 0.8rem;
-  font-weight: 800;
-  text-align: left;
-  white-space: nowrap;
+.departure-platform-heading.platform-change {
+  border-top: 3px solid var(--line);
 }
 
 .departure-time {
