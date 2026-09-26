@@ -290,8 +290,8 @@ h2 {
 
 .departure-row {
   display: grid;
-  grid-template-columns: 52px 34px 46px minmax(0, 1fr);
-  gap: 8px;
+  grid-template-columns: 52px 34px 78px minmax(0, 1fr);
+  gap: 6px;
   align-items: center;
   min-height: 30px;
   padding: 3px 10px;
@@ -334,7 +334,7 @@ h2 {
 }
 
 .departure-line {
-  font-size: 0.88rem;
+  font-size: 0.82rem;
   font-weight: 800;
   color: #07586a;
   text-align: center;
