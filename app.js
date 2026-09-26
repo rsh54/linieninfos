@@ -1,7 +1,9 @@
 const DEFAULT_LINES = ["3", "7", "9", "10"];
 const LINES_STORAGE_KEY = "uestra-lines";
 const STOP_STORAGE_KEY = "uestra-stop";
+const STOP_FAVORITES_STORAGE_KEY = "linienblick-stop-favorites";
 const STOP_CHOICES_PAGE_SIZE = 5;
+const STOP_FAVORITES_LIMIT = 8;
 
 const lineChips = document.querySelector("#lineChips");
 const lineForm = document.querySelector("#lineForm");
@@ -9,6 +11,8 @@ const lineInput = document.querySelector("#lineInput");
 const stopForm = document.querySelector("#stopForm");
 const stopInput = document.querySelector("#stopInput");
 const clearStopInput = document.querySelector("#clearStopInput");
+const saveStopFavorite = document.querySelector("#saveStopFavorite");
+const stopFavorites = document.querySelector("#stopFavorites");
 const stopChoices = document.querySelector("#stopChoices");
 const statusBox = document.querySelector("#statusBox");
 const departuresList = document.querySelector("#departuresList");
@@ -28,6 +32,7 @@ let stopState = loadStop();
 let stopName = stopState.name;
 let stopId = stopState.id;
 let stopLocality = stopState.locality;
+let stopFavoriteItems = loadStopFavorites();
 let stopSearchResults = [];
 let visibleStopChoices = STOP_CHOICES_PAGE_SIZE;
 
@@ -41,14 +46,19 @@ stopForm.addEventListener("submit", event => {
   searchStops(stopInput.value);
 });
 
-stopInput.addEventListener("input", renderStopInputClear);
+stopInput.addEventListener("input", () => {
+  renderStopInputClear();
+  renderStopFavorites();
+});
 clearStopInput.addEventListener("click", () => {
   stopInput.value = "";
   clearStopChoices();
   renderStopInputClear();
+  renderStopFavorites();
   stopInput.focus();
 });
 
+saveStopFavorite.addEventListener("click", saveCurrentStopFavorite);
 refreshButton.addEventListener("click", () => refreshAll());
 closeDetail.addEventListener("click", () => detailDialog.close());
 
@@ -60,6 +70,7 @@ renderLines();
 renderDepartures();
 stopInput.value = stopName;
 renderStopInputClear();
+renderStopFavorites();
 refreshAll();
 
 function loadLines() {
@@ -101,6 +112,22 @@ function saveStopState() {
   localStorage.setItem(STOP_STORAGE_KEY, JSON.stringify({ name: stopName, id: stopId, locality: stopLocality }));
 }
 
+function loadStopFavorites() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(STOP_FAVORITES_STORAGE_KEY) || "[]");
+    if (Array.isArray(saved)) {
+      return saved.map(normalizeStopFavorite).filter(Boolean);
+    }
+  } catch {
+    // Ignore invalid local storage.
+  }
+  return [];
+}
+
+function saveStopFavorites() {
+  localStorage.setItem(STOP_FAVORITES_STORAGE_KEY, JSON.stringify(stopFavoriteItems));
+}
+
 async function searchStops(value) {
   const query = String(value || "").trim().replace(/\s+/g, " ");
   if (!query) {
@@ -115,6 +142,7 @@ async function searchStops(value) {
     stopInput.value = "";
     renderStopInputClear();
     clearStopChoices();
+    renderStopFavorites();
     renderLines();
     renderDepartures("Haltestelle eintragen, um Abfahrten zu sehen.");
     renderAlerts();
@@ -149,6 +177,7 @@ async function selectStop(stop) {
   stopInput.value = stopName;
   renderStopInputClear();
   clearStopChoices();
+  renderStopFavorites();
 
   setStatus("Lade Linien dieser Haltestelle ...");
   refreshButton.disabled = true;
@@ -242,6 +271,88 @@ function clearStopChoices() {
 
 function renderStopInputClear() {
   clearStopInput.hidden = !stopInput.value;
+}
+
+function saveCurrentStopFavorite() {
+  const favorite = normalizeStopFavorite({ name: stopName, id: stopId, locality: stopLocality });
+  if (!favorite) {
+    return;
+  }
+
+  stopFavoriteItems = [
+    favorite,
+    ...stopFavoriteItems.filter(item => stopFavoriteKey(item) !== stopFavoriteKey(favorite))
+  ].slice(0, STOP_FAVORITES_LIMIT);
+  saveStopFavorites();
+  renderStopFavorites();
+}
+
+function selectStopFavorite(favorite) {
+  const normalized = normalizeStopFavorite(favorite);
+  if (normalized) {
+    selectStop(normalized);
+  }
+}
+
+function removeStopFavorite(favorite) {
+  const key = stopFavoriteKey(favorite);
+  stopFavoriteItems = stopFavoriteItems.filter(item => stopFavoriteKey(item) !== key);
+  saveStopFavorites();
+  renderStopFavorites();
+}
+
+function renderStopFavorites() {
+  stopFavorites.replaceChildren();
+  stopFavorites.hidden = !stopFavoriteItems.length;
+
+  const currentKey = stopFavoriteKey({ name: stopName, id: stopId, locality: stopLocality });
+  const isSaved = currentKey && stopFavoriteItems.some(item => stopFavoriteKey(item) === currentKey);
+  const inputMatchesStop = normalizeStop(stopInput.value) === stopName;
+  saveStopFavorite.disabled = !stopName || !inputMatchesStop || isSaved;
+  saveStopFavorite.textContent = isSaved ? "Favorit gespeichert" : "Favorit speichern";
+
+  stopFavoriteItems.forEach(favorite => {
+    const chip = document.createElement("span");
+    chip.className = "favorite-chip";
+
+    const button = document.createElement("button");
+    button.className = "favorite-select";
+    button.type = "button";
+    button.textContent = favorite.name;
+    button.addEventListener("click", () => selectStopFavorite(favorite));
+
+    const removeButton = document.createElement("button");
+    removeButton.className = "favorite-remove";
+    removeButton.type = "button";
+    removeButton.textContent = "×";
+    removeButton.ariaLabel = `${favorite.name} aus Favoriten entfernen`;
+    removeButton.addEventListener("click", () => removeStopFavorite(favorite));
+
+    chip.append(button, removeButton);
+    stopFavorites.append(chip);
+  });
+}
+
+function normalizeStopFavorite(value) {
+  if (!value || typeof value !== "object") {
+    return null;
+  }
+
+  const name = String(value.name || "").trim();
+  if (!name) {
+    return null;
+  }
+
+  return {
+    name,
+    id: String(value.id || "").trim(),
+    locality: String(value.locality || "").trim()
+  };
+}
+
+function stopFavoriteKey(value) {
+  const favorite = normalizeStopFavorite(value);
+  return favorite ? (favorite.id || `${favorite.locality}|${favorite.name}`).toLocaleLowerCase("de") : "";
 }
 
 function normalizeStop(value) {
