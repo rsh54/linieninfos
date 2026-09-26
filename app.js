@@ -12,6 +12,7 @@ const stopForm = document.querySelector("#stopForm");
 const stopInput = document.querySelector("#stopInput");
 const clearStopInput = document.querySelector("#clearStopInput");
 const saveStopFavorite = document.querySelector("#saveStopFavorite");
+const reloadStopLines = document.querySelector("#reloadStopLines");
 const stopFavorites = document.querySelector("#stopFavorites");
 const stopChoices = document.querySelector("#stopChoices");
 const statusBox = document.querySelector("#statusBox");
@@ -59,6 +60,7 @@ clearStopInput.addEventListener("click", () => {
 });
 
 saveStopFavorite.addEventListener("click", saveCurrentStopFavorite);
+reloadStopLines.addEventListener("click", reloadCurrentStopLines);
 refreshButton.addEventListener("click", () => refreshAll());
 closeDetail.addEventListener("click", () => detailDialog.close());
 
@@ -329,6 +331,7 @@ function renderStopFavorites() {
   const inputMatchesStop = normalizeStop(stopInput.value) === stopName;
   saveStopFavorite.disabled = !stopName || !inputMatchesStop || hasSameLines;
   saveStopFavorite.textContent = hasSameLines ? "Favorit gespeichert" : savedFavorite ? "Favorit aktualisieren" : "Favorit speichern";
+  reloadStopLines.disabled = !stopName || !inputMatchesStop;
 
   stopFavoriteItems.forEach(favorite => {
     const chip = document.createElement("span");
@@ -378,6 +381,30 @@ function stopFavoriteKey(value) {
 
 function linesKey(value) {
   return Array.isArray(value) ? value.map(normalizeLine).filter(Boolean).sort(lineSort).join("|") : "";
+}
+
+async function reloadCurrentStopLines() {
+  if (!stopName || normalizeStop(stopInput.value) !== stopName) {
+    return;
+  }
+
+  setStatus("Lade Linien dieser Haltestelle neu ...");
+  refreshButton.disabled = true;
+  reloadStopLines.disabled = true;
+
+  try {
+    lines = await fetchLinesForStop(currentStopQuery());
+    saveLines();
+    renderLines();
+    renderStopFavorites();
+    await refreshAll();
+  } catch {
+    setStatus("Konnte die Linien dieser Haltestelle nicht neu laden.", true);
+    updatedText.textContent = "Keine Verbindung";
+  } finally {
+    refreshButton.disabled = false;
+    renderStopFavorites();
+  }
 }
 
 function normalizeStop(value) {

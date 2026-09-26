@@ -183,6 +183,9 @@ h2 {
 }
 
 .stop-favorite-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
   margin-top: 9px;
 }
 
