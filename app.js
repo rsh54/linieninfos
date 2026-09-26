@@ -274,7 +274,7 @@ function renderStopInputClear() {
 }
 
 function saveCurrentStopFavorite() {
-  const favorite = normalizeStopFavorite({ name: stopName, id: stopId, locality: stopLocality });
+  const favorite = normalizeStopFavorite({ name: stopName, id: stopId, locality: stopLocality, lines });
   if (!favorite) {
     return;
   }
@@ -287,11 +287,29 @@ function saveCurrentStopFavorite() {
   renderStopFavorites();
 }
 
-function selectStopFavorite(favorite) {
+async function selectStopFavorite(favorite) {
   const normalized = normalizeStopFavorite(favorite);
-  if (normalized) {
-    selectStop(normalized);
+  if (!normalized) {
+    return;
   }
+
+  if (!normalized.lines.length) {
+    selectStop(normalized);
+    return;
+  }
+
+  stopName = normalized.name;
+  stopId = normalized.id;
+  stopLocality = normalized.locality;
+  lines = [...normalized.lines];
+  saveStopState();
+  saveLines();
+  stopInput.value = stopName;
+  renderStopInputClear();
+  clearStopChoices();
+  renderStopFavorites();
+  renderLines();
+  await refreshAll();
 }
 
 function removeStopFavorite(favorite) {
@@ -306,10 +324,11 @@ function renderStopFavorites() {
   stopFavorites.hidden = !stopFavoriteItems.length;
 
   const currentKey = stopFavoriteKey({ name: stopName, id: stopId, locality: stopLocality });
-  const isSaved = currentKey && stopFavoriteItems.some(item => stopFavoriteKey(item) === currentKey);
+  const savedFavorite = stopFavoriteItems.find(item => stopFavoriteKey(item) === currentKey);
+  const hasSameLines = savedFavorite ? linesKey(savedFavorite.lines) === linesKey(lines) : false;
   const inputMatchesStop = normalizeStop(stopInput.value) === stopName;
-  saveStopFavorite.disabled = !stopName || !inputMatchesStop || isSaved;
-  saveStopFavorite.textContent = isSaved ? "Favorit gespeichert" : "Favorit speichern";
+  saveStopFavorite.disabled = !stopName || !inputMatchesStop || hasSameLines;
+  saveStopFavorite.textContent = hasSameLines ? "Favorit gespeichert" : savedFavorite ? "Favorit aktualisieren" : "Favorit speichern";
 
   stopFavoriteItems.forEach(favorite => {
     const chip = document.createElement("span");
@@ -319,6 +338,7 @@ function renderStopFavorites() {
     button.className = "favorite-select";
     button.type = "button";
     button.textContent = favorite.name;
+    button.title = favorite.lines.length ? `${favorite.name}: ${favorite.lines.join(", ")}` : favorite.name;
     button.addEventListener("click", () => selectStopFavorite(favorite));
 
     const removeButton = document.createElement("button");
@@ -346,13 +366,18 @@ function normalizeStopFavorite(value) {
   return {
     name,
     id: String(value.id || "").trim(),
-    locality: String(value.locality || "").trim()
+    locality: String(value.locality || "").trim(),
+    lines: Array.isArray(value.lines) ? value.lines.map(normalizeLine).filter(Boolean).sort(lineSort) : []
   };
 }
 
 function stopFavoriteKey(value) {
   const favorite = normalizeStopFavorite(value);
   return favorite ? (favorite.id || `${favorite.locality}|${favorite.name}`).toLocaleLowerCase("de") : "";
+}
+
+function linesKey(value) {
+  return Array.isArray(value) ? value.map(normalizeLine).filter(Boolean).sort(lineSort).join("|") : "";
 }
 
 function normalizeStop(value) {
