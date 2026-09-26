@@ -257,7 +257,7 @@ function get_departures(string $stop, array $requestedLines): array
             'plannedTime' => $plannedTime,
             'estimatedTime' => $estimatedTime,
             'delayMinutes' => $delayMinutes,
-            'delayText' => $delayMinutes > 0 ? '+' . $delayMinutes : '',
+            'delayText' => $delayMinutes > 0 ? '(+' . $delayMinutes . ')' : '',
             'minutes' => $minutes,
             'minutesText' => $minutes <= 0 ? 'jetzt' : $minutes . ' min',
             'platform' => (string)($locationProperties['platform'] ?? $properties['platform'] ?? ''),
