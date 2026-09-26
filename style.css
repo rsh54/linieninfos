@@ -141,8 +141,38 @@ h2 {
   background: #fbfeff;
 }
 
-.line-form button,
-.stop-form button,
+.stop-input-wrap {
+  position: relative;
+  min-width: 0;
+}
+
+.stop-input-wrap input {
+  width: 100%;
+  padding-right: 42px;
+}
+
+.clear-input-button {
+  position: absolute;
+  top: 50%;
+  right: 7px;
+  width: 28px;
+  height: 28px;
+  transform: translateY(-50%);
+  border: 0;
+  border-radius: 50%;
+  background: #d7e2e8;
+  color: #24424d;
+  font-size: 1.25rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.clear-input-button:active {
+  transform: translateY(-50%) scale(0.96);
+}
+
+.line-form > button,
+.stop-form > button,
 .detail a {
   border: 0;
   border-radius: 8px;

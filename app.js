@@ -8,6 +8,7 @@ const lineForm = document.querySelector("#lineForm");
 const lineInput = document.querySelector("#lineInput");
 const stopForm = document.querySelector("#stopForm");
 const stopInput = document.querySelector("#stopInput");
+const clearStopInput = document.querySelector("#clearStopInput");
 const stopChoices = document.querySelector("#stopChoices");
 const statusBox = document.querySelector("#statusBox");
 const departuresList = document.querySelector("#departuresList");
@@ -40,6 +41,14 @@ stopForm.addEventListener("submit", event => {
   searchStops(stopInput.value);
 });
 
+stopInput.addEventListener("input", renderStopInputClear);
+clearStopInput.addEventListener("click", () => {
+  stopInput.value = "";
+  clearStopChoices();
+  renderStopInputClear();
+  stopInput.focus();
+});
+
 refreshButton.addEventListener("click", () => refreshAll());
 closeDetail.addEventListener("click", () => detailDialog.close());
 
@@ -50,6 +59,7 @@ if ("serviceWorker" in navigator) {
 renderLines();
 renderDepartures();
 stopInput.value = stopName;
+renderStopInputClear();
 refreshAll();
 
 function loadLines() {
@@ -103,6 +113,7 @@ async function searchStops(value) {
     saveStopState();
     saveLines();
     stopInput.value = "";
+    renderStopInputClear();
     clearStopChoices();
     renderLines();
     renderDepartures("Haltestelle eintragen, um Abfahrten zu sehen.");
@@ -136,6 +147,7 @@ async function selectStop(stop) {
   stopLocality = String(stop.locality || "").trim();
   saveStopState();
   stopInput.value = stopName;
+  renderStopInputClear();
   clearStopChoices();
 
   setStatus("Lade Linien dieser Haltestelle ...");
@@ -226,6 +238,10 @@ function clearStopChoices() {
   visibleStopChoices = STOP_CHOICES_PAGE_SIZE;
   stopChoices.replaceChildren();
   stopChoices.hidden = true;
+}
+
+function renderStopInputClear() {
+  clearStopInput.hidden = !stopInput.value;
 }
 
 function normalizeStop(value) {
