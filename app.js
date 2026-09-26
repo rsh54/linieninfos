@@ -426,6 +426,7 @@ function addLine(value) {
   lineInput.value = "";
   saveLines();
   renderLines();
+  renderStopFavorites();
   refreshAll();
 }
 
@@ -433,6 +434,7 @@ function removeLine(line) {
   lines = lines.filter(item => item !== line);
   saveLines();
   renderLines();
+  renderStopFavorites();
   refreshAll();
 }
 
