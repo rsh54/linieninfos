@@ -421,7 +421,7 @@ function renderDepartures(message) {
     if (platform !== previousPlatform) {
       const platformRow = document.createElement("div");
       platformRow.className = previousPlatform ? "departure-platform-heading platform-change" : "departure-platform-heading";
-      platformRow.textContent = platform;
+      platformRow.textContent = platformLabel(platform);
       table.append(platformRow);
     }
 
@@ -458,6 +458,11 @@ function sortDepartures(items) {
 function platformKey(value) {
   const platform = String(value || "").trim();
   return platform || "ohne Steig";
+}
+
+function platformLabel(value) {
+  const platform = platformKey(value);
+  return /^\d+$/u.test(platform) ? `Gleis ${platform}` : platform;
 }
 
 function destinationKey(value) {
