@@ -583,15 +583,20 @@ function renderDepartures(message) {
   let previousPlatform = "";
   sortDepartures(departures).forEach(departure => {
     const platform = platformKey(departure.platform);
+    const platformType = numericPlatform(platform) ? "station" : "dfi";
     if (platform !== previousPlatform) {
       const platformRow = document.createElement("div");
-      platformRow.className = previousPlatform ? "departure-platform-heading platform-change" : "departure-platform-heading";
+      platformRow.className = [
+        "departure-platform-heading",
+        `departure-platform-heading-${platformType}`,
+        previousPlatform ? "platform-change" : ""
+      ].filter(Boolean).join(" ");
       platformRow.textContent = platformLabel(platform);
       table.append(platformRow);
     }
 
     const row = document.createElement("article");
-    row.className = "departure-row";
+    row.className = `departure-row departure-row-${platformType}`;
     row.innerHTML = `
       <div class="departure-time">${escapeHTML(departure.minutesText)}</div>
       <div class="departure-delay">${escapeHTML(departure.delayText || "")}</div>
@@ -627,7 +632,11 @@ function platformKey(value) {
 
 function platformLabel(value) {
   const platform = platformKey(value);
-  return /^\d+$/u.test(platform) ? `Gleis ${platform}` : platform;
+  return numericPlatform(platform) ? `Gleis ${platform}` : platform;
+}
+
+function numericPlatform(value) {
+  return /^\d+$/u.test(String(value || "").trim());
 }
 
 function destinationKey(value) {
