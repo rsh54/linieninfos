@@ -583,7 +583,7 @@ function renderDepartures(message) {
   let previousPlatform = "";
   sortDepartures(departures).forEach(departure => {
     const platform = platformKey(departure.platform);
-    const platformType = numericPlatform(platform) ? "dfi" : "station";
+    const platformType = numericPlatform(platform) ? "station" : "dfi";
     if (platform !== previousPlatform) {
       const platformRow = document.createElement("div");
       platformRow.className = [
